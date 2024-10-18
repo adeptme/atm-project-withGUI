@@ -51,7 +51,7 @@ int transaction::userLogin(wxString pin) {
 
     wxMessageBox(pin);
     if (search(pin)) {
-        wxMessageBox("Log In Successfully!!!");
+        wxMessageBox("LOPIT MO BOSS!!!");
         return 1;
     }
     else {
