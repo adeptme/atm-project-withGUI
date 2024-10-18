@@ -100,7 +100,7 @@ void ATMFrame::Creation() {
 	this->SetBackgroundColour(wxColour(*wxLIGHT_GREY));
 	this->Show();
 
-	branding = new wxStaticText(this, wxID_ANY, "WELCOME TO ATMP", wxPoint(425, 20));
+	branding = new wxStaticText(this, wxID_ANY, "WELCOME TO ATMP", wxPoint(435, 30));
 	name = new wxStaticText(this, wxID_ANY, "Full Name: ", wxPoint(400, 100));
 	birthday = new wxStaticText(this, wxID_ANY, "Birthday: ", wxPoint(400, 170));
 
