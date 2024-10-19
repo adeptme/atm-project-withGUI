@@ -42,6 +42,7 @@ public:
     void filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance);
 
     bool search(wxString pin);
+
     //log-in
     int userLogin(wxString pin);
 };

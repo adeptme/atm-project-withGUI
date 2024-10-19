@@ -19,6 +19,23 @@ private: // event handlers
 	void OnSubmitClicked(wxCommandEvent& evt);
 
 	void BankFunctions();
+	void CheckBalanceButton(wxCommandEvent& evt);
+
+
+	void checkBalance(); //checker ng balance
+	void OnNextClickedCB(wxCommandEvent& evt);
+	void anotherTransac();
+	void OnNextClickedAT(wxCommandEvent& evt);
+	void OnNextClickedExit(wxCommandEvent& evt);
+	void Withdraw();
+	void OnNextClickedWD(wxCommandEvent& evt);
+	void Deposit();
+	void OnNextClickedD(wxCommandEvent& evt);
+	void ChangePin();
+	void OnNextClickedCP(wxCommandEvent& evt);
+	void BankTransfer();
+	void OnNextClickedBT(wxCommandEvent& evt);
+
 
 	// log-in panel buttons
 };
