@@ -6,36 +6,31 @@
 class ATMFrame : public wxFrame
 {
 public:
-	transaction Transaction; // class caller
 	ATMFrame(const wxString& title);
-private: // event handlers
-	
-	void LogIn();
-	void OnEnterClicked(wxCommandEvent& evt); // Event Handler, it should have reference as a parameter
-	void OnButtonAnyClicked(wxCommandEvent& evt); // Event Handler, it should have reference as a parameter
-	void OnClose(wxCloseEvent& evt);
-
-	void Creation();
-	void OnSubmitClicked(wxCommandEvent& evt);
-
-	void BankFunctions();
-	void CheckBalanceButton(wxCommandEvent& evt);
-
-
-	void checkBalance(); //checker ng balance
-	void OnNextClickedCB(wxCommandEvent& evt);
-	void anotherTransac();
-	void OnNextClickedAT(wxCommandEvent& evt);
-	void OnNextClickedExit(wxCommandEvent& evt);
-	void Withdraw();
-	void OnNextClickedWD(wxCommandEvent& evt);
+	void Register();
+	void Transaction();
+	void CheckBalance();
 	void Deposit();
-	void OnNextClickedD(wxCommandEvent& evt);
-	void ChangePin();
-	void OnNextClickedCP(wxCommandEvent& evt);
+	void Withdraw();
 	void BankTransfer();
-	void OnNextClickedBT(wxCommandEvent& evt);
+	void Change();
+	void ATransac();
+private:
+	void AnotherTransac(wxCommandEvent& evt);//button for another transaction
+	void AnotherTransacBack(wxCommandEvent& evt);//back button for another transaction
+	void ATBack(wxCommandEvent& evt);//Going back to the menu from the another transaction panel
+	void SChanged(wxCommandEvent& evt); //Successful Changed text
+	void OnButtonClicked(wxCommandEvent& evt);//button for each transaction
+	void BalanceButton(wxCommandEvent& evt);
+	void DepositsButton(wxCommandEvent& evt);
+	void WithdrawsButton(wxCommandEvent& evt);
+	void TransferButton(wxCommandEvent& evt);
+	void ChangeButton(wxCommandEvent& evt);
+	void ExitButton(wxCommandEvent& evt);//hanggang dito yung button for each transaction
 
-
-	// log-in panel buttons
+	void BalanceBack(wxCommandEvent& evt);//back button for each transaction
+	void DepositBack(wxCommandEvent& evt);
+	void WithdrawBack(wxCommandEvent& evt);
+	void FundTransBack(wxCommandEvent& evt);
+	void ChangePinBack(wxCommandEvent& evt);//hanggang dito yung button for each transaction
 };

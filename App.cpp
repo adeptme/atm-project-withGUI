@@ -10,5 +10,6 @@ bool App::OnInit() {
 	atmFrame->SetMaxClientSize(wxSize(1280,720));
 	//atmFrame->SetClientSize(wxSize(1280, 720));
 	atmFrame->Show();
+	
 	return true; // return true for process to continue, false to close immediately
 }
