@@ -15,12 +15,12 @@ wxFont textFont(20, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMA
 wxFont createFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 wxFont pastFont(40, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 
-// login panel
+// login PANEL
 wxPanel* Menu;
 wxStaticText* MenuText;
 wxStaticText* pintext;
 
-// transaction panel
+// transaction PANEL
 wxPanel* transaction;
 wxButton* AllButton; //button kada transaction
 wxButton* DButton;
@@ -38,7 +38,7 @@ wxStaticText* changepintext;
 
 wxButton* EnterPin; //enter pin button sa simula
 
-//Register Panel
+//Register PANEL
 wxPanel* regpanel;
 
 wxStaticText* regpaneltxt;
@@ -63,21 +63,21 @@ wxButton* regsubmitbutton;
 wxPanel* balance;
 wxButton* BackButton;
 
-//Deposit Panel
+//Deposit PANEL
 wxPanel* depositpanel;
 wxButton* DepositButton;
 wxStaticText* amounttextD;
 wxTextCtrl* amountD;
 wxButton* proceedD;
 
-//Withdraw Panel
+//Withdraw PANEL
 wxPanel* withdraw;
 wxButton* WithdrawButton;
 wxStaticText* amountW;
 wxTextCtrl* enteramountW;
 wxButton* proceedW;
 
-//Fund Transfer Panel
+//Fund Transfer PANEL
 wxPanel* BankTransferPanel;
 wxButton* BankTransferButton;
 wxStaticText* recpnt_accntxt;
@@ -86,7 +86,7 @@ wxStaticText* trans_entr_amnttxt;
 wxTextCtrl* trans_entr_amnt;
 wxButton* proceed_trans_amnt;
 
-//Change PIN Panel
+//Change PIN PANEL
 wxPanel* changepinpanel;
 wxButton* ChangePinButton;
 wxStaticText* CurrentPinText;
@@ -97,7 +97,7 @@ wxStaticText* VerifyNewPinText;
 wxTextCtrl* VerifyNewPin;
 wxButton* proceedCP;
 
-//Another Transaction
+//Another Transaction PANEL
 wxPanel* atransaction;
 wxStaticText* aTransac;
 wxButton* yesbutton;
@@ -153,6 +153,7 @@ ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
     Layout();
 }
 
+// WAG MUNA GALAWIN
 void ATMFrame::Register() {
     
     regpanel = new wxPanel(this);
@@ -388,8 +389,8 @@ void ATMFrame::ATransac() {
 
 void ATMFrame::OnButtonClicked(wxCommandEvent& evt) {
     Menu->Hide();
-    //transaction->Show();
-    regpanel->Show();
+    transaction->Show();
+    //regpanel->Show(); checker lang ng REGISTER PANEL
     Layout();
 }
 
