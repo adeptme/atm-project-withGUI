@@ -17,7 +17,7 @@ public:
 	void ATransac();
 private:
 	void AnotherTransac(wxCommandEvent& evt);//button for another transaction
-	void AnotherTransacBack(wxCommandEvent& evt);//back button for another transaction
+	void AnotherTransacNo(wxCommandEvent& evt);//back button for another transaction
 	void ATBack(wxCommandEvent& evt);//Going back to the menu from the another transaction panel
 	void SChanged(wxCommandEvent& evt); //Successful Changed text
 	void OnButtonClicked(wxCommandEvent& evt);//button for each transaction

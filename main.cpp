@@ -6,52 +6,80 @@
 #include <wx/datetime.h>
 #include <vector>
 
-wxPanel* Menu;
-wxPanel* transaction;
-wxPanel* balance;
-
 
 wxFont titleFont(80, wxFONTFAMILY_SCRIPT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_EXTRABOLD);
-wxFont brandFont(15, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-wxFont textFont(32, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+wxFont brandFont(15, wxFONTFAMILY_DECORATIVE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+wxFont fieldFont(16, wxFONTFAMILY_ROMAN, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_LIGHT);
+wxFont userinputfieldFont2(14, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+wxFont textFont(20, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 wxFont createFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
-wxFont fieldFont(20, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 wxFont pastFont(40, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 
-wxStaticText* MenuText; //title page kada panel
+// login panel
+wxPanel* Menu;
+wxStaticText* MenuText;
+wxStaticText* pintext;
+
+// transaction panel
+wxPanel* transaction;
+wxButton* AllButton; //button kada transaction
+wxButton* DButton;
+wxButton* WButton;
+wxButton* BTButton;
+wxButton* CButton;
+wxButton* exits;//hanggang dito yung button of each transaction
+
 wxStaticText* transtxt;
 wxStaticText* baltxt;
 wxStaticText* textD;
 wxStaticText* textWD;
 wxStaticText* BTtxt;
-wxStaticText* changepintext;//hanggang dito yung title page panel
+wxStaticText* changepintext;
+
+wxButton* EnterPin; //enter pin button sa simula
 
 //Register Panel
 wxPanel* regpanel;
+
 wxStaticText* regpaneltxt;
-wxStaticText* nametxt;
-wxTextCtrl* name;
-wxStaticText* bdaytxt;
-wxStaticText* contacttxt;
-wxTextCtrl* contact;
-wxStaticText* regpanelpintxt;
-wxTextCtrl* regpanelpin;
-wxButton* proceedregpanel;
+wxStaticText* regnametxt;
+wxStaticText* regpintxt;
+wxStaticText* regbalancetxt;
+wxStaticText* regcontacttxt;
+wxStaticText* regcontact63;
+wxStaticText* regcalendartxt;
+
+wxTextCtrl* regnameField;
+wxTextCtrl* regpinField;
+wxTextCtrl* egbalanceField;
+wxTextCtrl* regcontactField;
+wxTextCtrl* regbalanceField;
+
+wxCalendarCtrl* regcalendar;
+
+wxButton* regsubmitbutton;
+
+//Check Balance Panel
+wxPanel* balance;
+wxButton* BackButton;
 
 //Deposit Panel
 wxPanel* depositpanel;
-wxStaticText* amounttextD;//Static txt enter amount for deposit
-wxTextCtrl* amountD;//enter amount for deposit
+wxButton* DepositButton;
+wxStaticText* amounttextD;
+wxTextCtrl* amountD;
 wxButton* proceedD;
 
 //Withdraw Panel
 wxPanel* withdraw;
+wxButton* WithdrawButton;
 wxStaticText* amountW;
 wxTextCtrl* enteramountW;
 wxButton* proceedW;
 
 //Fund Transfer Panel
 wxPanel* BankTransferPanel;
+wxButton* BankTransferButton;
 wxStaticText* recpnt_accntxt;
 wxTextCtrl* recpnt_accn;
 wxStaticText* trans_entr_amnttxt;
@@ -60,6 +88,7 @@ wxButton* proceed_trans_amnt;
 
 //Change PIN Panel
 wxPanel* changepinpanel;
+wxButton* ChangePinButton;
 wxStaticText* CurrentPinText;
 wxTextCtrl* CurrentPin;
 wxStaticText* NewPinText;
@@ -74,22 +103,6 @@ wxStaticText* aTransac;
 wxButton* yesbutton;
 wxButton* nobutton;
 
-
-wxButton* EnterPin; //enter pin button sa simula
-wxButton* AllButton; //button kada transaction
-wxButton* DButton;
-wxButton* WButton;
-wxButton* BTButton;
-wxButton* CButton;
-wxButton* exits;//hanggang dito yung button of each transaction
-
-wxButton* BackButton; //back button kada transaction
-wxButton* DepositButton;
-wxButton* WithdrawButton;
-wxButton* BankTransferButton;
-wxButton* ChangePinButton;//hanggang dito yung button kada transaction
-
-
 wxTextCtrl* pin;//for pin input at the start
 
 
@@ -97,11 +110,16 @@ ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
     Menu = new wxPanel(this);
     MenuText = new wxStaticText(Menu, wxID_ANY, "WELCOME TO ATMP", wxPoint(150, 100));
     MenuText->SetFont(titleFont);
+
     EnterPin = new wxButton(Menu, wxID_ANY, "ENTER", wxPoint(520, 350), wxSize(100, 30));
+
+    pintext = new wxStaticText(Menu, wxID_ANY, "ENTER PIN", wxPoint(300, 330));
     pin = new wxTextCtrl(Menu, wxID_ANY, "", wxPoint(300, 350), wxSize(200, 30), wxTE_PASSWORD);
     pin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
 
     EnterPin->Bind(wxEVT_BUTTON, &ATMFrame::OnButtonClicked, this);
+
+    
 
     Transaction();
     CheckBalance();
@@ -136,15 +154,47 @@ ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
 }
 
 void ATMFrame::Register() {
+    
     regpanel = new wxPanel(this);
     regpaneltxt = new wxStaticText(regpanel, wxID_ANY, "REGISTER ACCOUNT", wxPoint(170, 50));
     regpaneltxt->SetFont(pastFont);
-    nametxt = new wxStaticText(regpanel, wxID_ANY, "NAME:", wxPoint(150, 140));
-    nametxt->SetFont(brandFont);
-    name = new wxTextCtrl(regpanel, wxID_ANY, "", wxPoint(250, 140), wxSize(400, 25));
+    regnametxt = new wxStaticText(regpanel, wxID_ANY, "NAME :", wxPoint(150, 140));
+    regnametxt->SetFont(brandFont);
+    regnameField = new wxTextCtrl(regpanel, wxID_ANY, "", wxPoint(500, 140), wxSize(400, 25));
 
+    regpintxt = new wxStaticText(regpanel, wxID_ANY, "PIN :", wxPoint(150, 190));
+    regpintxt->SetFont(brandFont);
+    regpinField = new wxTextCtrl(regpanel, wxID_ANY, "", wxPoint(500, 190), wxSize(400, 25));
 
+    regbalancetxt = new wxStaticText(regpanel, wxID_ANY, "INITIAL DEPOSIT :", wxPoint(150, 240));
+    regbalancetxt->SetFont(brandFont);
+    regbalanceField = new wxTextCtrl(regpanel, wxID_ANY, "", wxPoint(500, 240), wxSize(400, 25));
+
+    regcontacttxt = new wxStaticText(regpanel, wxID_ANY, "CONTACT NUMBER:", wxPoint(150, 290));
+    regcontact63 = new wxStaticText(regpanel, wxID_ANY, "+63-", wxPoint(450, 290));
+    regcontacttxt->SetFont(brandFont);
+    regcontact63->SetFont(brandFont);
+    regcontactField = new wxTextCtrl(regpanel, wxID_ANY, "*********", wxPoint(500, 290), wxSize(400, 25));
+    regcontactField->SetFont(fieldFont);
+    regcontactField->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
+        if (regcontactField->GetValue() == "*********") {
+            regcontactField->SetFont(userinputfieldFont2);
+            regcontactField->Clear();
+        }
+        event.Skip();
+        });
+
+    regcalendartxt = new wxStaticText(regpanel, wxID_ANY, "BIRTHDAY", wxPoint(150, 350));
+    regcalendartxt->SetFont(brandFont);
+    regcalendar = new wxCalendarCtrl(regpanel, wxID_ANY, wxDefaultDateTime, wxPoint (500, 350));
+    //calendar->Bind(wxEVT_CALENDAR_SEL_CHANGED, &MainFrame::OnDateChanged, this);
+
+    regsubmitbutton = new wxButton(regpanel, wxID_ANY, "SUBMIT", wxPoint(500, 550), wxSize(400, 25));
+    regsubmitbutton->SetFont(userinputfieldFont2);
+    
 }
+
+
 
 void ATMFrame::Transaction() {
     transaction = new wxPanel(this);
@@ -152,31 +202,31 @@ void ATMFrame::Transaction() {
     transtxt->SetFont(pastFont);
 
     AllButton = new wxButton(transaction, wxID_ANY, "BALANCE INQUIRY", wxPoint(100, 200), wxSize(300, 100));
-    AllButton->SetFont(fieldFont);
+    AllButton->SetFont(textFont);
     AllButton->Bind(wxEVT_BUTTON, &ATMFrame::BalanceButton, this);
 
     DButton = new wxButton(transaction, wxID_ANY, "DEPOSIT", wxPoint(100, 330), wxSize(300, 100));
-    DButton->SetFont(fieldFont);
+    DButton->SetFont(textFont);
     DButton->Bind(wxEVT_BUTTON, &ATMFrame::DepositsButton, this);
 
 
     WButton = new wxButton(transaction, wxID_ANY, "WITHDRAW", wxPoint(100, 460), wxSize(300, 100));
-    WButton->SetFont(fieldFont);
+    WButton->SetFont(textFont);
     WButton->Bind(wxEVT_BUTTON, &ATMFrame::WithdrawsButton, this);
 
 
     BTButton = new wxButton(transaction, wxID_ANY, "FUND TRANSFER", wxPoint(500, 200), wxSize(300, 100));
-    BTButton->SetFont(fieldFont);
+    BTButton->SetFont(textFont);
     BTButton->Bind(wxEVT_BUTTON, &ATMFrame::TransferButton, this);
 
 
     CButton = new wxButton(transaction, wxID_ANY, "CHANGE PIN", wxPoint(500, 330), wxSize(300, 100));
-    CButton->SetFont(fieldFont);
+    CButton->SetFont(textFont);
     CButton->Bind(wxEVT_BUTTON, &ATMFrame::ChangeButton, this);
 
 
     exits = new wxButton(transaction, wxID_ANY, "EXIT", wxPoint(500, 460), wxSize(300, 100));
-    exits->SetFont(fieldFont);
+    exits->SetFont(textFont);
     exits->Bind(wxEVT_BUTTON, &ATMFrame::ExitButton, this);
 }
 
@@ -185,7 +235,7 @@ void ATMFrame::CheckBalance() {
     baltxt = new wxStaticText(balance, wxID_ANY, "BALANCE INQUIRY", wxPoint(215, 50));
     baltxt->SetFont(pastFont);
     BackButton = new wxButton(balance, wxID_ANY, "BACK", wxPoint(550, 550), wxSize(300, 100));
-    BackButton->SetFont(fieldFont);
+    BackButton->SetFont(textFont);
     BackButton->Bind(wxEVT_BUTTON, &ATMFrame::BalanceBack, this);
 }
 
@@ -195,17 +245,26 @@ void ATMFrame::Deposit() {
     textD->SetFont(pastFont);
 
     DepositButton = new wxButton(depositpanel, wxID_ANY, "CANCEL", wxPoint(550, 550), wxSize(300, 100));
-    DepositButton->SetFont(fieldFont);
+    DepositButton->SetFont(textFont);
     DepositButton->Bind(wxEVT_BUTTON, &ATMFrame::DepositBack, this);
 
     amounttextD = new wxStaticText(depositpanel, wxID_ANY, "ENTER AMOUNT:", wxPoint(200, 150));
-    amounttextD->SetFont(fieldFont);
+    amounttextD->SetFont(textFont);
 
-    amountD = new wxTextCtrl(depositpanel, wxID_ANY, "", wxPoint(450, 150), wxSize(250, 30));
+    amountD = new wxTextCtrl(depositpanel, wxID_ANY, "minimum amount 500php", wxPoint(450, 150), wxSize(250, 30));
     amountD->SetValidator(wxTextValidator(wxFILTER_DIGITS));
+    amountD->SetFont(fieldFont);
+    amountD->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
+        if (amountD->GetValue() == "minimum amount 500php") {
+            amountD->SetFont(userinputfieldFont2);
+            amountD->Clear();
+        }
+        event.Skip();
+        });
+   
 
     proceedD = new wxButton(depositpanel, wxID_ANY, "PROCEED", wxPoint(200, 200), wxSize(500, 100));
-    proceedD->SetFont(fieldFont);
+    proceedD->SetFont(textFont);
     proceedD->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
 }
 
@@ -215,20 +274,29 @@ void ATMFrame::Withdraw() {
     textWD->SetFont(pastFont);
 
     WithdrawButton = new wxButton(withdraw, wxID_ANY, "CANCEL", wxPoint(550, 550), wxSize(300, 100));
-    WithdrawButton->SetFont(fieldFont);
+    WithdrawButton->SetFont(textFont);
     WithdrawButton->Bind(wxEVT_BUTTON, &ATMFrame::WithdrawBack, this);
 
     amountW = new wxStaticText(withdraw, wxID_ANY, "ENTER AMOUNT:", wxPoint(200, 150));
-    amountW->SetFont(fieldFont);
+    amountW->SetFont(textFont);
 
     enteramountW = new wxTextCtrl(withdraw, wxID_ANY, "", wxPoint(450, 150), wxSize(250, 30));
     enteramountW->SetValidator(wxTextValidator(wxFILTER_DIGITS));
+    enteramountW->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
+        if (enteramountW->GetValue() == "minimum amount 500php") {
+            enteramountW->SetFont(userinputfieldFont2);
+            enteramountW->Clear();
+        }
+        event.Skip();
+        });
 
     proceedW = new wxButton(withdraw, wxID_ANY, "PROCEED", wxPoint(200, 200), wxSize(500, 100));
-    proceedW->SetFont(fieldFont);
+    proceedW->SetFont(textFont);
     proceedW->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
 
 }
+
+
 
 void ATMFrame::BankTransfer() {
     BankTransferPanel = new wxPanel(this);
@@ -236,23 +304,37 @@ void ATMFrame::BankTransfer() {
     BTtxt->SetFont(pastFont);
 
     BankTransferButton = new wxButton(BankTransferPanel, wxID_ANY, "CANCEL", wxPoint(550, 550), wxSize(300, 100));
-    BankTransferButton->SetFont(fieldFont);
+    BankTransferButton->SetFont(textFont);
     BankTransferButton->Bind(wxEVT_BUTTON, &ATMFrame::FundTransBack, this);
 
     recpnt_accntxt = new wxStaticText(BankTransferPanel, wxID_ANY, "ACCOUNT NUMBER", wxPoint(140, 150));
-    recpnt_accntxt->SetFont(fieldFont);
+    recpnt_accntxt->SetFont(textFont);
 
-    recpnt_accn = new wxTextCtrl(BankTransferPanel, wxID_ANY, "", wxPoint(500, 150), wxSize(250, 30));
+    recpnt_accn = new wxTextCtrl(BankTransferPanel, wxID_ANY, "*****", wxPoint(500, 150), wxSize(250, 30));
     recpnt_accn->SetValidator(wxTextValidator(wxFILTER_DIGITS));
+    enteramountW->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
+        if (enteramountW->GetValue() == "*****") {
+            enteramountW->SetFont(userinputfieldFont2);
+            enteramountW->Clear();
+        }
+        event.Skip();
+        });
+
 
     trans_entr_amnttxt = new wxStaticText(BankTransferPanel, wxID_ANY, "ENTER AMOUNT", wxPoint(140, 200));
-    trans_entr_amnttxt->SetFont(fieldFont);
-
-    trans_entr_amnt = new wxTextCtrl(BankTransferPanel, wxID_ANY, "", wxPoint(500, 200), wxSize(250, 30));
+    trans_entr_amnttxt->SetFont(textFont);
+    trans_entr_amnt = new wxTextCtrl(BankTransferPanel, wxID_ANY, "minimum amount 500php", wxPoint(500, 200), wxSize(250, 30));
     trans_entr_amnt->SetValidator(wxTextValidator(wxFILTER_DIGITS));
+    trans_entr_amnt->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
+        if (trans_entr_amnt->GetValue() == "minimum amount 500php") {
+            trans_entr_amnt->SetFont(userinputfieldFont2);
+            trans_entr_amnt->Clear();
+        }
+        event.Skip();
+        });
 
     proceed_trans_amnt = new wxButton(BankTransferPanel, wxID_ANY, "PROCEED", wxPoint(140, 250), wxSize(610, 60));
-    proceed_trans_amnt->SetFont(fieldFont);
+    proceed_trans_amnt->SetFont(textFont);
     proceed_trans_amnt->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
 }
 
@@ -262,29 +344,29 @@ void ATMFrame::Change() {
     changepintext->SetFont(pastFont);
 
     ChangePinButton = new wxButton(changepinpanel, wxID_ANY, "CANCEL", wxPoint(550, 550), wxSize(300, 100));
-    ChangePinButton->SetFont(fieldFont);
+    ChangePinButton->SetFont(textFont);
     ChangePinButton->Bind(wxEVT_BUTTON, &ATMFrame::ChangePinBack, this);
 
     CurrentPinText = new wxStaticText(changepinpanel, wxID_ANY, "CURRENT PIN:", wxPoint(220, 150));
-    CurrentPinText->SetFont(fieldFont);
+    CurrentPinText->SetFont(textFont);
 
     CurrentPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(420, 150), wxSize(250, 30));
     CurrentPin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
 
     NewPinText = new wxStaticText(changepinpanel, wxID_ANY, "NEW PIN:", wxPoint(220, 220));
-    NewPinText->SetFont(fieldFont);
+    NewPinText->SetFont(textFont);
 
     NewPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(420, 220), wxSize(250, 30));
     NewPin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
 
     VerifyNewPinText = new wxStaticText(changepinpanel, wxID_ANY, "CONFIRM PIN:", wxPoint(220, 270));
-    VerifyNewPinText->SetFont(fieldFont);
+    VerifyNewPinText->SetFont(textFont);
 
     VerifyNewPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(420, 270), wxSize(250, 30));
     VerifyNewPin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
 
     proceedCP = new wxButton(changepinpanel, wxID_ANY, "PROCEED", wxPoint(220, 320), wxSize(450, 60));
-    proceedCP->SetFont(fieldFont);
+    proceedCP->SetFont(textFont);
     proceedCP->Bind(wxEVT_BUTTON, &ATMFrame::SChanged, this);
     
 }
@@ -292,21 +374,22 @@ void ATMFrame::Change() {
 void ATMFrame::ATransac() {
     atransaction = new wxPanel(this);
     aTransac = new wxStaticText(atransaction, wxID_ANY, "WOULD YOU LIKE TO MAKE ANOTHER TRANSACTION?", wxPoint(275, 50));
-    aTransac->SetFont(fieldFont);
+    aTransac->SetFont(textFont);
 
     yesbutton = new wxButton(atransaction, wxID_ANY, "YES", wxPoint(220, 320), wxSize(450, 60));
-    yesbutton->SetFont(fieldFont);
+    yesbutton->SetFont(textFont);
     nobutton = new wxButton(atransaction, wxID_ANY, "NO", wxPoint(620, 320), wxSize(450, 60));
-    nobutton->SetFont(fieldFont);
+    nobutton->SetFont(textFont);
 
     yesbutton->Bind(wxEVT_BUTTON, &ATMFrame::ATBack, this);
-    nobutton->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacBack, this);
+    nobutton->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacNo, this);
 }
 
 
 void ATMFrame::OnButtonClicked(wxCommandEvent& evt) {
     Menu->Hide();
-    transaction->Show();
+    //transaction->Show();
+    regpanel->Show();
     Layout();
 }
 
@@ -382,11 +465,9 @@ void ATMFrame::AnotherTransac(wxCommandEvent& evt) {
     Layout();
 }
 
-void ATMFrame::AnotherTransacBack(wxCommandEvent& evt) {
-    depositpanel->Hide();
-    atransaction->Hide();
-    transaction->Show();
-    Layout();
+void ATMFrame::AnotherTransacNo(wxCommandEvent& evt) {
+    wxLogMessage("Thank you for using our service!");
+    Close(true);
 }
 
 void ATMFrame::ATBack(wxCommandEvent& evt) {
