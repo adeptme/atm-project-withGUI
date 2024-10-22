@@ -7,6 +7,7 @@ class ATMFrame : public wxFrame
 {
 public:
 	ATMFrame(const wxString& title);
+	void Welcome();
 	void Register();
 	void Transaction();
 	void CheckBalance();
@@ -16,6 +17,9 @@ public:
 	void Change();
 	void ATransac();
 private:
+	void LoginExistingAcc(wxCommandEvent& evt);
+	void CreateNewAcc(wxCommandEvent& evt);
+	void RegSubmitButton(wxCommandEvent& evt);
 	void AnotherTransac(wxCommandEvent& evt);//button for another transaction
 	void AnotherTransacNo(wxCommandEvent& evt);//back button for another transaction
 	void ATBack(wxCommandEvent& evt);//Going back to the menu from the another transaction panel

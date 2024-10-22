@@ -1,7 +1,6 @@
 #include "ATMFrame.h"
 #include "bankfunctions.h"
 #include <wx/wx.h>
-#include <wx/spinctrl.h>
 #include <wx/calctrl.h>
 #include <wx/datetime.h>
 #include <vector>
@@ -14,6 +13,12 @@ wxFont userinputfieldFont2(14, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTW
 wxFont textFont(20, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 wxFont createFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 wxFont pastFont(40, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
+
+//WELCOME PANEL
+wxPanel* welcome;
+wxStaticText* welcomeatmp;
+wxButton* loginexistingacc;
+wxButton* createanaccount;
 
 // login PANEL
 wxPanel* Menu;
@@ -107,6 +112,50 @@ wxTextCtrl* pin;//for pin input at the start
 
 
 ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
+    welcome = new wxPanel(this);
+    loginexistingacc = new wxButton(welcome, wxID_ANY, "Login existing account", wxPoint(450, 400), wxSize(400, 25));
+    loginexistingacc->Bind(wxEVT_BUTTON, &ATMFrame::LoginExistingAcc, this);
+    createanaccount = new wxButton(welcome, wxID_ANY, "Create a new account", wxPoint(450, 300), wxSize(400, 25));
+    createanaccount->Bind(wxEVT_BUTTON, &ATMFrame::CreateNewAcc, this);
+    welcomeatmp = new wxStaticText(welcome, wxID_ANY, "WELCOME TO ATM NG MGA POGI", wxPoint(200, 50));
+    welcomeatmp->SetFont(pastFont);
+
+    Welcome();
+    Transaction();
+    CheckBalance();
+    Deposit();
+    Withdraw();
+    BankTransfer();
+    Change();
+    Register();
+    ATransac();
+
+    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    mainSizer->Add(welcome, 1, wxEXPAND);
+    mainSizer->Add(Menu, 1, wxEXPAND);
+    mainSizer->Add(regpanel, 1, wxEXPAND);
+    mainSizer->Add(transaction, 1, wxEXPAND);
+    mainSizer->Add(balance, 1, wxEXPAND);
+    mainSizer->Add(depositpanel, 1, wxEXPAND);
+    mainSizer->Add(withdraw, 1, wxEXPAND);
+    mainSizer->Add(BankTransferPanel, 1, wxEXPAND);
+    mainSizer->Add(changepinpanel, 1, wxEXPAND);
+    mainSizer->Add(atransaction, 1, wxEXPAND);
+
+    Menu->Hide();
+    regpanel->Hide();
+    transaction->Hide();
+    balance->Hide();
+    depositpanel->Hide();
+    withdraw->Hide();
+    BankTransferPanel->Hide();
+    changepinpanel->Hide();
+    atransaction->Hide();
+    SetSizer(mainSizer);
+    Layout();
+}
+
+void ATMFrame::Welcome() {
     Menu = new wxPanel(this);
     MenuText = new wxStaticText(Menu, wxID_ANY, "WELCOME TO ATMP", wxPoint(150, 100));
     MenuText->SetFont(titleFont);
@@ -118,39 +167,6 @@ ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
     pin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
 
     EnterPin->Bind(wxEVT_BUTTON, &ATMFrame::OnButtonClicked, this);
-
-    
-
-    Transaction();
-    CheckBalance();
-    Deposit();
-    Withdraw();
-    BankTransfer();
-    Change();
-    Register();
-    ATransac();
-
-    wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
-    mainSizer->Add(Menu, 1, wxEXPAND);
-    mainSizer->Add(regpanel, 1, wxEXPAND);
-    mainSizer->Add(transaction, 1, wxEXPAND);
-    mainSizer->Add(balance, 1, wxEXPAND);
-    mainSizer->Add(depositpanel, 1, wxEXPAND);
-    mainSizer->Add(withdraw, 1, wxEXPAND);
-    mainSizer->Add(BankTransferPanel, 1, wxEXPAND);
-    mainSizer->Add(changepinpanel, 1, wxEXPAND);
-    mainSizer->Add(atransaction, 1, wxEXPAND);
-
-    regpanel->Hide();
-    transaction->Hide();
-    balance->Hide();
-    depositpanel->Hide();
-    withdraw->Hide();
-    BankTransferPanel->Hide();
-    changepinpanel->Hide();
-    atransaction->Hide();
-    SetSizer(mainSizer);
-    Layout();
 }
 
 // WAG MUNA GALAWIN
@@ -191,6 +207,7 @@ void ATMFrame::Register() {
     //calendar->Bind(wxEVT_CALENDAR_SEL_CHANGED, &MainFrame::OnDateChanged, this);
 
     regsubmitbutton = new wxButton(regpanel, wxID_ANY, "SUBMIT", wxPoint(500, 550), wxSize(400, 25));
+    regsubmitbutton->Bind(wxEVT_BUTTON, &ATMFrame::RegSubmitButton, this);
     regsubmitbutton->SetFont(userinputfieldFont2);
     
 }
@@ -386,6 +403,24 @@ void ATMFrame::ATransac() {
     nobutton->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacNo, this);
 }
 
+void ATMFrame::LoginExistingAcc(wxCommandEvent& evt) {
+    wxMessageBox("Account Successfully Created");
+    welcome->Hide();
+    Menu->Show();
+    Layout();
+}
+
+void ATMFrame::CreateNewAcc(wxCommandEvent& evt) {
+    welcome->Hide();
+    regpanel->Show();
+    Layout();
+}
+
+void ATMFrame::RegSubmitButton(wxCommandEvent& evt) {
+    regpanel->Hide();
+    Menu->Show();
+    Layout();
+}
 
 void ATMFrame::OnButtonClicked(wxCommandEvent& evt) {
     Menu->Hide();
