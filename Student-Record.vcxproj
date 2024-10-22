@@ -142,12 +142,14 @@
   <ItemGroup>
     <ClCompile Include="App.cpp" />
     <ClCompile Include="bankfunctions.cpp" />
+    <ClCompile Include="Create.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
     <ClInclude Include="ATMFrame.h" />
     <ClInclude Include="bankfunctions.h" />
+    <ClInclude Include="Create.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

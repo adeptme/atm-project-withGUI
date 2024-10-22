@@ -1,5 +1,4 @@
 #include "ATMFrame.h"
-#include "bankfunctions.h"
 #include <wx/wx.h>
 #include <wx/calctrl.h>
 #include <wx/datetime.h>

@@ -2,6 +2,7 @@
 #include <wx/wx.h>
 #include <wx/calctrl.h>
 #include "bankfunctions.h"
+#include "Create.h"
 
 class ATMFrame : public wxFrame
 {
