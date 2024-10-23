@@ -1,45 +1,162 @@
 #include "bankfunctions.h"
-#include <wx/wx.h>
+#include <iostream>
+#include <string>
+#include <fstream>
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
+#include <conio.h>
+#include <windows.h>
+#include <sstream>
 
-void transaction::saveToFile() {     //save user info
-    ofstream file("accounts.txt", ios::app);
+using namespace std;
+
+wxString transaction::decrypt(wxString pin) {   // decryption
+    string temp = string(pin.mb_str()); // Convert wxString to std::wxString
+
+    for (size_t i = 0; i < temp.size(); i++) {
+        temp[i] = temp[i] - 200;           // Decrypt by adjusting ASCII value
+    }
+
+    return temp;                 // Convert back to wxString and return
+}
+
+wxString transaction::encrypt(wxString pin) {   // encryption
+    string temp = string(pin.mb_str()); // Convert wxString to std::wxString
+
+    for (size_t i = 0; i < temp.size(); i++) {
+        temp[i] = temp[i] + 200;           // Encrypt by adjusting ASCII value
+    }
+
+    return temp;                 // Convert back to wxString and return
+}
+
+bool transaction::isEmpty() {
+    return (first == NULL && accounts == NULL);
+}
+
+bool transaction::detectFlashDrive() {
+    DWORD fd = GetLogicalDrives();
+    //cout << "Flash drive detected: ";
+    for (char drive = 'D'; drive <= 'Z'; drive++) {
+        if (fd & (1 << (drive - 'A'))) {
+            string fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
+
+            //cout << fdpath << " "; // debug
+
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
+                //cout << "\nFlash drive detected at: " << fdpath << endl;
+                string drivepath = fdpath + "ATMaccount.txt"; // directory of ATMAccount.txt in the drive
+                ifstream file(drivepath);
+                if (file.good()) { // program proceeds to logging in
+                    //cout << "Account in USB exists.";
+                    file.close();
+                    return true;
+                }
+                else { // exits program as file does not exist
+                    file.close();
+                    //cout << "Card is not registered.";
+                    exit(0);
+                }
+            }
+        }
+    }
+    //cout << "\nNo removable flash drive detected." << endl;
+    return false;
+}
+
+bool transaction::accountFound(wxString target) {
+    account* validator = first;
+
+    while (validator != NULL) {
+        if (validator->cardNum == target) {
+            return true;
+        }
+        validator = validator->next;
+    }
+    return false;
+}
+
+bool transaction::searchInUSB(wxString acc_num, wxString pin) {
+
+    string drivepath, fdpath;
+    DWORD fd = GetLogicalDrives();
+    //cout << "Flash drive detected: ";
+    for (char drive = 'D'; drive <= 'Z'; drive++) {
+        if (fd & (1 << (drive - 'A'))) {
+            fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
+
+            //cout << fdpath << " "; // debug
+
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
+                drivepath = fdpath + "ATMaccount.txt";
+                //cout << "\nFlash drive detected at: " << fdpath << endl;
+            }
+        }
+    }
+    ifstream file(drivepath);
+    if (!file.is_open()) {
+        //cout << "Error opening USB file." << endl;
+        return false;
+    }
+
+    string fileCardNumber, encryptedPin;
+    while (file >> fileCardNumber >> encryptedPin) {
+
+        if (fileCardNumber == acc_num) {
+            // Decrypt the PIN
+            wxString decryptedPin = decrypt(encryptedPin);
+            //cout << endl << "Decryted Pin: " << decryptedPin << endl;
+
+            // Compare decrypted PIN with the user's input PIN
+            if (decryptedPin == pin) {
+                file.close();
+                return true;
+            }
+        }
+    }
+
+    file.close();
+    return false;
+}
+
+void transaction::saveToFile() {
+    account* save = first;
+    ofstream file("accounts.txt");
     if (file.is_open()) {
-        file << accounts->name << endl << accounts->pincode << endl << accounts->cardNum << endl << accounts->balance << endl;
-        file.close();
+        while (save != NULL) {
+            file << save->name << endl
+                << save->pincode << endl
+                << save->cardNum << endl
+                << save->balance << endl
+                << save->birthday << endl
+                << save->contact << endl;
+
+            save = save->next;
+
+        }
+
     }
     else {
-        cout << "Unable to open file.";
+        //cout << "Unable to open file.";
     }
+    file.close();
 }
 
-
-void transaction::retrieve() {
-    ifstream file("accounts.txt", ios::app);
-    if (!file.is_open()) {
-        cout << "File Error" << endl;
-        return;
-    }
-    string fileName, filePin, fileCardNumber;
-    int fileBalance;
-    while (file >> fileName >> filePin >> fileCardNumber >> fileBalance) {
-        wxString name = fileName;
-        wxString pin = filePin;
-        wxString CardNumber = fileCardNumber;
-        filetoLink(name, pin, CardNumber, fileBalance);
-    }
-}
-
-void transaction::filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance) { // pushes data of file to a linked list
+void transaction::filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance, wxString fileBirthday, wxString fileContact) { // pushes data of file to a linked list
     account* newaccount = new account();
-
     newaccount->name = fileName;
     newaccount->cardNum = fileCardNumber;
     newaccount->pincode = filePin;
     newaccount->balance = fileBalance;
+    newaccount->birthday = fileBirthday;
+    newaccount->contact = fileContact;
     newaccount->next = NULL;
 
+    // wxMessageBox("%s", fileName); // to check whether the stream reads from the file and puts it to linked list
+
     if (isEmpty()) {
-        accounts = newaccount;
+        first = accounts = newaccount;
     }
     else {
         accounts->next = newaccount;
@@ -47,28 +164,244 @@ void transaction::filetoLink(wxString fileName, wxString filePin, wxString fileC
     }
 }
 
-int transaction::userLogin(wxString pin) {
-
-    wxMessageBox(pin);
-    if (search(pin)) {
-        wxMessageBox("LOPIT MO BOSS!!!");
-        return 1;
+void transaction::retrieve() {
+    ifstream file("accounts.txt");
+    if (!file.is_open()) { // File Error
+        return;
     }
-    else {
-        wxMessageBox("MALI KA BOSS");
-        return 0;
+    string skip;
+    string fileName, filePin, fileCardNumber,fileBalance, fileBirthday, fileContact;
+
+    while (!file.eof()) {
+        getline(file, fileName);
+            if (fileName.empty()) { // to prevent the iteration if stream reads a blank line
+                return;
+            }
+        getline(file, filePin);
+        getline(file, fileCardNumber);
+        getline(file, fileBalance);
+        getline(file, fileBirthday);
+        getline(file, fileContact);
+
+        int fileBal = stoi(fileBalance);
+        filetoLink(fileName, filePin, fileCardNumber, fileBal, fileBirthday, fileContact);
+    }
+    file.close();
+}
+
+bool transaction::validateLoginOnBoth(wxString pin) {
+    string drivepath, fdpath;
+    DWORD fd = GetLogicalDrives();
+    //cout << "Flash drive detected: ";
+    for (char drive = 'D'; drive <= 'Z'; drive++) {
+        if (fd & (1 << (drive - 'A'))) {
+            fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
+
+            //cout << fdpath << " "; // debug
+
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) { // Flash drive detected
+                drivepath = fdpath + "ATMaccount.txt";
+                
+            }
+        }
+    }
+    ifstream file(drivepath);
+    string acc_num;
+    file >> acc_num;
+
+    wxString acc_numconverted(acc_num.c_str());
+    if (!file.is_open()) { // Error opening USB file
+        return false;
+    }
+
+    return (search(acc_numconverted, pin) && searchInUSB(acc_numconverted, pin));
+}
+
+bool transaction::userLogin(wxString pin) {
+
+    if (validateLoginOnBoth(pin) == true) { // Log In Successfully
+        return true;
+    }
+    else { // Account Number or PIN incorrect
+        return false;
     }
 }
 
-bool transaction::search(wxString pin) {
-    account* search = accounts;
+bool transaction::search(wxString acc_num, wxString pin) {
 
-    while (search != nullptr){
+    account* search = first;
+
+    while (search != NULL) {
+        if (search->cardNum == acc_num) {
             if (search->pincode == pin) {
                 login = search;
                 return true;
             }
+            else {
+                return false;
+            }
+        }
         search = search->next;
     }
     return false;
 }
+
+int transaction::deposit(int Damount) {
+
+    if (login->balance >= Damount) {
+        
+        login->balance += Damount;
+        saveToFile();
+        return login->balance;
+    }
+        
+}
+
+int transaction::withdraw(int inputbalance) {
+    if (login->balance >= inputbalance) {
+        login->balance -= inputbalance;
+        saveToFile();
+        return login->balance;
+    }
+    return -1;
+}
+
+int transaction::checkBal() {
+    int temp = login->balance;
+
+    return temp;
+}
+
+int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
+
+    while (1) {
+
+        if (accountFound(targetcardnum)) {
+
+            if (login->balance >= amounttransfer) {
+                account* targetAccount = first;
+
+                // Find the target account
+                while (targetAccount != NULL) {
+                    if (targetAccount->cardNum == targetcardnum) {
+                        login->balance -= amounttransfer;
+
+                        targetAccount->balance += amounttransfer;
+
+                        saveToFile();
+                        return login->balance;
+                    }
+                    targetAccount = targetAccount->next;
+                }
+            }
+            else {
+            }
+        }
+    }
+}
+
+bool transaction::changePIN(wxString currentPin, wxString newPin) {
+
+    //cout << "Enter your PIN: ";
+    //cin >> newPin;
+
+    if (comparepin(currentPin) == true) {
+        login->pincode = newPin;
+        saveToFile();
+        updatePinInFile(newPin);
+        return true;
+    }
+}
+
+bool transaction::comparepin(wxString newPIN) {
+    if (newPIN == login->pincode) {
+        return true;
+    }
+    return false;
+}
+
+void transaction::updatePinInFile(wxString newPin) {
+
+    string drivepath, fdpath;
+    DWORD fd = GetLogicalDrives();
+    //cout << "Flash drive detected: ";
+    for (char drive = 'D'; drive <= 'Z'; drive++) {
+        if (fd & (1 << (drive - 'A'))) {
+            fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
+
+            //cout << fdpath << " "; // debug
+
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
+                drivepath = fdpath + "ATMaccount.txt";
+                //cout << "\nFlash drive detected at: " << fdpath << endl;
+            }
+        }
+    }
+   
+    ofstream changefile(drivepath);
+
+    if (!changefile) {
+        //cout << "Error opening file!" << endl;
+        return;
+    }
+    wxString encrypted = encrypt(newPin);
+    
+    changefile << login->cardNum << " " << encrypted;
+
+    ////cout << temp << endl;
+
+    //cout << "Account PIN in USB changed!" << endl;
+    changefile.close();
+}
+
+void transaction::idleUSB(transaction transac) {
+    if (detectFlashDrive() == false) {
+        system("cls");
+        //cout << "PLEASE INSERT A FLASH DRIVE." << endl;
+        Sleep(1);
+        idleUSB(transac);
+    }
+    else {
+        //cout << "FLASH DRIVE DETECTED";
+        return;
+    }
+}
+
+/*
+int main() {
+    transaction transac;
+    int choice;
+    transac.retrieve();
+    transac.idleUSB(transac);
+
+    while (1) {
+        transac.mainMenu();
+        //cin >> choice;
+        switch (choice) {
+        case 1:
+            while (1) {
+                system("cls");
+                transac.detectFlashDrive();
+
+                // Detect flash drive before login
+                if (transac.userLogin() == true) {
+
+                    transac.checkBal();
+                    //transac.withdraw();
+                    //transac.bankTrans();
+                    transac.changePIN();
+                    break;
+                }
+            }
+            break;
+
+        case 0:
+            //system("cls");
+            //cout << "Thank you for using this ATM";
+            return 0;
+
+        default:
+            //cout << "Invalid choice, Please try again.";
+        }
+    }
+}*/

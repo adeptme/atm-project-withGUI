@@ -1,47 +1,53 @@
 #pragma once
-
-#include <iostream>
-#include <string.h>
 #include <fstream>
-#include <cstdlib>
-#include <ctime>
-#include <iomanip>
+#include <String>
 #include <wx/wx.h>
-
-using namespace std;
-
-
-struct LoginResult {       //storing login results
-    bool success;
-    wxString cardNumber;
-};
 
 struct account {
     wxString name;
     wxString cardNum;
     wxString pincode;
+    wxString birthday;
     int balance;
+    wxString contact;
     account* next;
-
-    account(): balance(0), next(NULL){}
+    account() : balance(0), next(nullptr) {}
 };
 
 class transaction {  //user info and storing it to file handling keme
 private:
+    account* first;
     account* accounts;
     account* login;
 public:
-    transaction() : accounts(NULL), login(NULL) {};
+    transaction() : first(nullptr), accounts(nullptr), login(nullptr) {}
+    
+    // encryption & decryption
+    wxString decrypt(wxString pin);
+    wxString encrypt(wxString pin);
 
-    bool isEmpty() {
-        return (accounts == NULL);
-    }
+    void idleUSB(transaction transac);
 
+    // search function
+    bool isEmpty();
+    bool detectFlashDrive();
+    bool accountFound(wxString target);
+    bool search(wxString acc_num, wxString pin);
+    bool validateLoginOnBoth(wxString pin);
+    bool searchInUSB(wxString acc_num, wxString pin);
+    bool userLogin(wxString pin);
+    bool comparepin(wxString newPIN);
+    bool changePIN(wxString currentPin, wxString newPin);
+
+    // file handling
     void retrieve();
     void saveToFile();
-    void filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance);
+    void filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance, wxString fileBirthday, wxString fileContact);
 
-    bool search(wxString pin);
-    //log-in
-    int userLogin(wxString pin);
+    // bank functions
+    int deposit(int Damount);
+    int withdraw(int inputbalance);
+    int checkBal();
+    int bankTrans(int amounttransfer, wxString targetcardnum);
+    void updatePinInFile(wxString newPin);
 };
