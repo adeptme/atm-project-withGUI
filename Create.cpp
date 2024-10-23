@@ -135,7 +135,7 @@ void create::datatoLink(wxString fileName, wxString filePin, wxString fileCardNu
 
 void create::createAccount(wxString tName, wxString tPin, int tBalance, wxString tBirthday, wxString tContact) {
     wxString tCardNum;
-
+    retrieveFromDatabase();
     Account* search = first;
     do {
         tCardNum = generateRandAccNum();
