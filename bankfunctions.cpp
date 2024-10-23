@@ -201,39 +201,48 @@ void transaction::retrieve() {
     file.close();
 }
 
-bool transaction::validateLoginOnBoth(wxString acc_num, wxString pin) {
+bool transaction::validateLoginOnBoth(wxString pin) {
+    string drivepath, fdpath;
+    DWORD fd = GetLogicalDrives();
+    //cout << "Flash drive detected: ";
+    for (char drive = 'D'; drive <= 'Z'; drive++) {
+        if (fd & (1 << (drive - 'A'))) {
+            fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
+
+            //cout << fdpath << " "; // debug
+
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
+                drivepath = fdpath + "ATMaccount.txt";
+                //cout << "\nFlash drive detected at: " << fdpath << endl;
+            }
+        }
+    }
+    ifstream file(drivepath);
+    string acc_num;
+    file >> acc_num;
+
+    if (!file.is_open()) {
+        //cout << "Error opening USB file." << endl;
+        return false;
+    }
+
     return (search(acc_num, pin) && searchInUSB(acc_num, pin));
 }
 
-bool transaction::userLogin() {
+bool transaction::userLogin(wxString pin) {
 
-    //cout << "User: " << first->name << endl;
-    //cout << "Pin: " << first->pincode << endl;
-    //cout << "Card Number: " << first->cardNum << endl;
-    //cout << "Balance: " << first->balance << endl << endl;
-    //cout << "Birthday: " << first->birthday << endl;
-    //cout << "Contact Number: " << first->contact << endl << endl;
-
-    wxString acc_num, pin;
-    //cout << "Enter your account number: ";
-    //cin >> acc_num;
-    //cout << "Enter your pin: ";
-    //cin >> pin;
-
-
-    if (validateLoginOnBoth(acc_num, pin) == true) {
+    if (validateLoginOnBoth(pin) == true) {
         //cout << "\n\nLog In Successfully!!!\n";
-        system("pause");
         return true;
     }
     else {
         //cout << "\n\nAccount Number or PIN incorrect!!!\n";
-        system("pause");
         return false;
     }
 }
 
 bool transaction::search(wxString acc_num, wxString pin) {
+
     account* search = first;
 
     while (search != NULL) {
@@ -305,19 +314,6 @@ int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
                 //cout << "Insufficient Balance!" << endl;
             }
         }
-    }
-}
-
-bool transaction::loginWithFlashDrive() {
-
-    wxString acc_num, pin;
-    //cout << "Enter your account number: ";
-    //cin >> acc_num;
-    //cout << "Enter your PIN: ";
-    //cin >> pin;
-
-    if (validateLoginOnBoth(acc_num, pin)) {
-        return true;
     }
 }
 

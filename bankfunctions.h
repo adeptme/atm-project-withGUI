@@ -33,9 +33,9 @@ public:
     void filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance, wxString fileBirthday, wxString fileContact);
 
     bool search(wxString acc_num, wxString pin);
-    bool validateLoginOnBoth(wxString acc_num, wxString pin);
+    bool validateLoginOnBoth(wxString pin);
     bool searchInUSB(wxString acc_num, wxString pin);
-    bool userLogin();
+    bool userLogin(wxString pin);
     //bool validateOnBoth(wxwxString acc_num, wxwxString pin, wxwxString (*decryptFunc)(const wxwxString&));
     void idleUSB(transaction transac);
 
