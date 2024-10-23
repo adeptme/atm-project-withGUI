@@ -23,8 +23,10 @@ private:
 	void LoginExistingAcc(wxCommandEvent& evt);
 	void CreateNewAcc(wxCommandEvent& evt);
 	void RegSubmitButton(wxCommandEvent& evt);
-	void AnotherTransac(wxCommandEvent& evt);//button for another transaction
 	void AnotherTransacNo(wxCommandEvent& evt);//back button for another transaction
+	void AnotherTransacW(wxCommandEvent& evt); //another transac for withdraw
+	void AnotherTransacD(wxCommandEvent& evt); //another transac for deposit
+	void AnotherTransacBT(wxCommandEvent& evt); //another transac for bank transfer
 	void ATBack(wxCommandEvent& evt);//Going back to the menu from the another transaction panel
 	void SChanged(wxCommandEvent& evt); //Successful Changed text
 	void OnButtonClicked(wxCommandEvent& evt);//button for each transaction

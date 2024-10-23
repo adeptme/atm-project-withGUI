@@ -65,6 +65,8 @@ wxButton* regsubmitbutton;
 
 //Check Balance Panel
 wxPanel* balance;
+wxStaticText* balanceD;
+wxString convertedbalance;
 wxButton* BackButton;
 
 //Deposit PANEL
@@ -78,6 +80,7 @@ wxButton* proceedD;
 wxPanel* withdraw;
 wxButton* WithdrawButton;
 wxStaticText* amountW;
+wxStaticText* newAmount;
 wxTextCtrl* enteramountW;
 wxButton* proceedW;
 
@@ -253,6 +256,7 @@ void ATMFrame::CheckBalance() {
     balance = new wxPanel(this);
     baltxt = new wxStaticText(balance, wxID_ANY, "BALANCE INQUIRY", wxPoint(215, 50));
     baltxt->SetFont(pastFont);
+
     BackButton = new wxButton(balance, wxID_ANY, "BACK", wxPoint(550, 550), wxSize(300, 100));
     BackButton->SetFont(textFont);
     BackButton->Bind(wxEVT_BUTTON, &ATMFrame::BalanceBack, this);
@@ -284,7 +288,7 @@ void ATMFrame::Deposit() {
 
     proceedD = new wxButton(depositpanel, wxID_ANY, "PROCEED", wxPoint(200, 200), wxSize(500, 100));
     proceedD->SetFont(textFont);
-    proceedD->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
+    proceedD->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacD, this);
 }
 
 void ATMFrame::Withdraw() {
@@ -311,7 +315,7 @@ void ATMFrame::Withdraw() {
 
     proceedW = new wxButton(withdraw, wxID_ANY, "PROCEED", wxPoint(200, 200), wxSize(500, 100));
     proceedW->SetFont(textFont);
-    proceedW->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
+    proceedW->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacW, this);
 
 }
 
@@ -354,7 +358,7 @@ void ATMFrame::BankTransfer() {
 
     proceed_trans_amnt = new wxButton(BankTransferPanel, wxID_ANY, "PROCEED", wxPoint(140, 250), wxSize(610, 60));
     proceed_trans_amnt->SetFont(textFont);
-    proceed_trans_amnt->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
+    proceed_trans_amnt->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacBT, this);
 }
 
 void ATMFrame::Change() {
@@ -438,6 +442,11 @@ void ATMFrame::OnButtonClicked(wxCommandEvent& evt) {
 
 void ATMFrame::BalanceButton(wxCommandEvent& evt) {
     transaction->Hide();
+    int balancedisplay = Transac.checkBal();
+    wxString convertedbalance;
+    convertedbalance << balancedisplay;
+    balanceD = new wxStaticText(balance, wxID_ANY, "Your Remaining Balance: " + convertedbalance, wxPoint(400, 100));
+    balanceD->SetFont(textFont);
     balance->Show();
     Layout();
 }
@@ -500,10 +509,39 @@ void ATMFrame::ChangePinBack(wxCommandEvent& evt) {
     Layout();
 }
 
-void ATMFrame::AnotherTransac(wxCommandEvent& evt) {
-    depositpanel->Hide();
+void ATMFrame::AnotherTransacW(wxCommandEvent& evt) {
     withdraw->Hide();
+    wxString withdrawamount = enteramountW->GetValue();
+    int newbalance;
+    newbalance = wxAtoi(withdrawamount);
+    int wAmount = Transac.withdraw(newbalance);
+    wxString convertedamount;
+    convertedamount << wAmount;
+    atransaction->Show();
+    Layout();
+}
+
+void ATMFrame::AnotherTransacBT(wxCommandEvent& evt) {
     BankTransferPanel->Hide();
+    wxString AccNumTrans = recpnt_accn->GetValue();
+    wxString banktransferamount = trans_entr_amnt->GetValue();
+    int transferredbalance;
+    transferredbalance = wxAtoi(banktransferamount);
+    int BTAmount = Transac.bankTrans(transferredbalance, AccNumTrans);
+    wxString convertedbtbalance;
+    convertedbtbalance << BTAmount;
+    atransaction->Show();
+    Layout();
+}
+
+void ATMFrame::AnotherTransacD(wxCommandEvent& evt) {
+    depositpanel->Hide();
+    wxString depositamount = amountD->GetValue();
+    int newbalanceD;
+    newbalanceD = wxAtoi(depositamount);
+    int dAmount = Transac.deposit(newbalanceD);
+    wxString Dconvertedamount;
+    Dconvertedamount << dAmount;
     atransaction->Show();
     Layout();
 }
@@ -520,8 +558,20 @@ void ATMFrame::ATBack(wxCommandEvent& evt) {
 }
 
 void ATMFrame::SChanged(wxCommandEvent& evt) {
-    wxMessageBox("SUCCESSFULLY CHANGED PIN");
-    changepinpanel->Hide();
-    transaction->Show();
-    Layout();
+    wxString changedPin = NewPin->GetValue();
+    wxString currentchangedPin = CurrentPin->GetValue();
+    wxString verifychangedPin = VerifyNewPin->GetValue();
+
+    if (changedPin == verifychangedPin) {
+        if (Transac.changePIN(currentchangedPin, changedPin) == true) {
+            wxMessageBox("SUCCESSFULLY CHANGED PIN");
+            changepinpanel->Hide();
+            transaction->Show();
+            Layout();
+            Close(true);
+        }
+       
+    }
+
+    
 }

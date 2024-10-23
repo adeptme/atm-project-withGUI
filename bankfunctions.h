@@ -11,7 +11,7 @@ struct account {
     int balance;
     wxString contact;
     account* next;
-    account() : balance(0), next(NULL) {}
+    account() : balance(0), next(nullptr) {}
 };
 
 class transaction {  //user info and storing it to file handling keme
@@ -21,13 +21,13 @@ private:
     account* login;
 public:
 
-    transaction() : first(NULL), accounts(NULL), login(NULL) {}
+    transaction() : first(nullptr), accounts(nullptr), login(nullptr) {}
     wxString decrypt(wxString pin);
     wxString encrypt(wxString pin);
     bool isEmpty();
     bool detectFlashDrive();
     bool accountFound(wxString target);
-
+   
     void retrieve();
     void saveToFile();
     void filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance, wxString fileBirthday, wxString fileContact);
@@ -36,10 +36,12 @@ public:
     bool validateLoginOnBoth(wxString pin);
     bool searchInUSB(wxString acc_num, wxString pin);
     bool userLogin(wxString pin);
+    bool comparepin(wxString newPIN);
     //bool validateOnBoth(wxwxString acc_num, wxwxString pin, wxwxString (*decryptFunc)(const wxwxString&));
     void idleUSB(transaction transac);
-
-    void changePIN();
+    
+    bool changePIN(wxString currentPin, wxString newPin);
+    int deposit(int Damount);
     int withdraw(int inputbalance);
     int checkBal();
     int bankTrans(int amounttransfer, wxString targetcardnum);

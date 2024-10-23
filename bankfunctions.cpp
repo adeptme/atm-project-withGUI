@@ -262,6 +262,17 @@ bool transaction::search(wxString acc_num, wxString pin) {
     return false;
 }
 
+int transaction::deposit(int Damount) {
+
+    if (login->balance >= Damount) {
+        
+        login->balance += Damount;
+        saveToFile();
+        return login->balance;
+    }
+        
+}
+
 int transaction::withdraw(int inputbalance) {
 
     //cout << "Enter amount to withdraw: ";
@@ -281,7 +292,9 @@ int transaction::withdraw(int inputbalance) {
 }
 
 int transaction::checkBal() {
-    return login->balance;
+    int temp = login->balance;
+
+    return temp;
 }
 
 int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
@@ -357,15 +370,24 @@ void transaction::accSett() {
     //updatePinInFile(*login, newPin);
 } */
 
-void transaction::changePIN() {
-    wxString newPin;
+bool transaction::changePIN(wxString currentPin, wxString newPin) {
 
     //cout << "Enter your PIN: ";
     //cin >> newPin;
 
-    login->pincode = newPin;
-    saveToFile();
-    updatePinInFile(newPin);
+    if (comparepin(currentPin) == true) {
+        login->pincode = newPin;
+        saveToFile();
+        updatePinInFile(newPin);
+        return true;
+    }
+}
+
+bool transaction::comparepin(wxString newPIN) {
+    if (newPIN == login->pincode) {
+        return true;
+    }
+    return false;
 }
 
 void transaction::updatePinInFile(wxString newPin) {
@@ -393,6 +415,7 @@ void transaction::updatePinInFile(wxString newPin) {
         return;
     }
     wxString encrypted = encrypt(newPin);
+    
     changefile << login->cardNum << " " << encrypted;
 
     ////cout << temp << endl;
