@@ -1,7 +1,5 @@
 #include "ATMFrame.h"
-#include "bankfunctions.h"
 #include <wx/wx.h>
-#include <wx/spinctrl.h>
 #include <wx/calctrl.h>
 #include <wx/datetime.h>
 #include <vector>
@@ -15,13 +13,19 @@ wxFont textFont(20, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMA
 wxFont createFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 wxFont pastFont(40, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
 
+//WELCOME PANEL
+wxPanel* welcome;
+wxStaticText* welcomeatmp;
+wxButton* loginexistingacc;
+wxButton* createanaccount;
+
 // login PANEL
 wxPanel* Menu;
 wxStaticText* MenuText;
 wxStaticText* pintext;
 
 // transaction PANEL
-wxPanel* transaction;
+wxPanel* transactionpanel;
 wxButton* AllButton; //button kada transaction
 wxButton* DButton;
 wxButton* WButton;
@@ -61,6 +65,8 @@ wxButton* regsubmitbutton;
 
 //Check Balance Panel
 wxPanel* balance;
+wxStaticText* balanceD;
+wxString convertedbalance;
 wxButton* BackButton;
 
 //Deposit PANEL
@@ -74,6 +80,7 @@ wxButton* proceedD;
 wxPanel* withdraw;
 wxButton* WithdrawButton;
 wxStaticText* amountW;
+wxStaticText* newAmount;
 wxTextCtrl* enteramountW;
 wxButton* proceedW;
 
@@ -107,20 +114,16 @@ wxTextCtrl* pin;//for pin input at the start
 
 
 ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
-    Menu = new wxPanel(this);
-    MenuText = new wxStaticText(Menu, wxID_ANY, "WELCOME TO ATMP", wxPoint(150, 100));
-    MenuText->SetFont(titleFont);
+    Transac.retrieve();
+    welcome = new wxPanel(this);
+    loginexistingacc = new wxButton(welcome, wxID_ANY, "Login existing account", wxPoint(450, 400), wxSize(400, 25));
+    loginexistingacc->Bind(wxEVT_BUTTON, &ATMFrame::LoginExistingAcc, this);
+    createanaccount = new wxButton(welcome, wxID_ANY, "Create a new account", wxPoint(450, 300), wxSize(400, 25));
+    createanaccount->Bind(wxEVT_BUTTON, &ATMFrame::CreateNewAcc, this);
+    welcomeatmp = new wxStaticText(welcome, wxID_ANY, "WELCOME TO ATM NG MGA POGI", wxPoint(200, 50));
+    welcomeatmp->SetFont(pastFont);
 
-    EnterPin = new wxButton(Menu, wxID_ANY, "ENTER", wxPoint(520, 350), wxSize(100, 30));
-
-    pintext = new wxStaticText(Menu, wxID_ANY, "ENTER PIN", wxPoint(300, 330));
-    pin = new wxTextCtrl(Menu, wxID_ANY, "", wxPoint(300, 350), wxSize(200, 30), wxTE_PASSWORD);
-    pin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
-
-    EnterPin->Bind(wxEVT_BUTTON, &ATMFrame::OnButtonClicked, this);
-
-    
-
+    Welcome();
     Transaction();
     CheckBalance();
     Deposit();
@@ -131,9 +134,10 @@ ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
     ATransac();
 
     wxBoxSizer* mainSizer = new wxBoxSizer(wxVERTICAL);
+    mainSizer->Add(welcome, 1, wxEXPAND);
     mainSizer->Add(Menu, 1, wxEXPAND);
     mainSizer->Add(regpanel, 1, wxEXPAND);
-    mainSizer->Add(transaction, 1, wxEXPAND);
+    mainSizer->Add(transactionpanel, 1, wxEXPAND);
     mainSizer->Add(balance, 1, wxEXPAND);
     mainSizer->Add(depositpanel, 1, wxEXPAND);
     mainSizer->Add(withdraw, 1, wxEXPAND);
@@ -141,8 +145,9 @@ ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
     mainSizer->Add(changepinpanel, 1, wxEXPAND);
     mainSizer->Add(atransaction, 1, wxEXPAND);
 
+    Menu->Hide();
     regpanel->Hide();
-    transaction->Hide();
+    transactionpanel->Hide();
     balance->Hide();
     depositpanel->Hide();
     withdraw->Hide();
@@ -151,6 +156,21 @@ ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
     atransaction->Hide();
     SetSizer(mainSizer);
     Layout();
+}
+
+void ATMFrame::Welcome() {
+    Menu = new wxPanel(this);
+    MenuText = new wxStaticText(Menu, wxID_ANY, "WELCOME TO ATMP", wxPoint(150, 100));
+    MenuText->SetFont(titleFont);
+
+    EnterPin = new wxButton(Menu, wxID_ANY, "ENTER", wxPoint(520, 350), wxSize(100, 30));
+
+
+    pintext = new wxStaticText(Menu, wxID_ANY, "ENTER PIN", wxPoint(300, 330));
+    pin = new wxTextCtrl(Menu, wxID_ANY, "", wxPoint(300, 350), wxSize(200, 30), wxTE_PASSWORD);
+    pin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
+
+    EnterPin->Bind(wxEVT_BUTTON, &ATMFrame::OnButtonClicked, this);
 }
 
 // WAG MUNA GALAWIN
@@ -191,42 +211,41 @@ void ATMFrame::Register() {
     //calendar->Bind(wxEVT_CALENDAR_SEL_CHANGED, &MainFrame::OnDateChanged, this);
 
     regsubmitbutton = new wxButton(regpanel, wxID_ANY, "SUBMIT", wxPoint(500, 550), wxSize(400, 25));
+    regsubmitbutton->Bind(wxEVT_BUTTON, &ATMFrame::RegSubmitButton, this);
     regsubmitbutton->SetFont(userinputfieldFont2);
     
 }
 
-
-
 void ATMFrame::Transaction() {
-    transaction = new wxPanel(this);
-    transtxt = new wxStaticText(transaction, wxID_ANY, "TRANSACTION", wxPoint(260, 50));
+    transactionpanel = new wxPanel(this);
+    transtxt = new wxStaticText(transactionpanel, wxID_ANY, "TRANSACTION", wxPoint(260, 50));
     transtxt->SetFont(pastFont);
 
-    AllButton = new wxButton(transaction, wxID_ANY, "BALANCE INQUIRY", wxPoint(100, 200), wxSize(300, 100));
+    AllButton = new wxButton(transactionpanel, wxID_ANY, "BALANCE INQUIRY", wxPoint(100, 200), wxSize(300, 100));
     AllButton->SetFont(textFont);
     AllButton->Bind(wxEVT_BUTTON, &ATMFrame::BalanceButton, this);
 
-    DButton = new wxButton(transaction, wxID_ANY, "DEPOSIT", wxPoint(100, 330), wxSize(300, 100));
+    DButton = new wxButton(transactionpanel, wxID_ANY, "DEPOSIT", wxPoint(100, 330), wxSize(300, 100));
     DButton->SetFont(textFont);
     DButton->Bind(wxEVT_BUTTON, &ATMFrame::DepositsButton, this);
 
 
-    WButton = new wxButton(transaction, wxID_ANY, "WITHDRAW", wxPoint(100, 460), wxSize(300, 100));
+    WButton = new wxButton(transactionpanel, wxID_ANY, "WITHDRAW", wxPoint(100, 460), wxSize(300, 100));
     WButton->SetFont(textFont);
     WButton->Bind(wxEVT_BUTTON, &ATMFrame::WithdrawsButton, this);
 
 
-    BTButton = new wxButton(transaction, wxID_ANY, "FUND TRANSFER", wxPoint(500, 200), wxSize(300, 100));
+    BTButton = new wxButton(transactionpanel, wxID_ANY, "FUND TRANSFER", wxPoint(500, 200), wxSize(300, 100));
     BTButton->SetFont(textFont);
     BTButton->Bind(wxEVT_BUTTON, &ATMFrame::TransferButton, this);
 
 
-    CButton = new wxButton(transaction, wxID_ANY, "CHANGE PIN", wxPoint(500, 330), wxSize(300, 100));
+    CButton = new wxButton(transactionpanel, wxID_ANY, "CHANGE PIN", wxPoint(500, 330), wxSize(300, 100));
     CButton->SetFont(textFont);
     CButton->Bind(wxEVT_BUTTON, &ATMFrame::ChangeButton, this);
 
 
-    exits = new wxButton(transaction, wxID_ANY, "EXIT", wxPoint(500, 460), wxSize(300, 100));
+    exits = new wxButton(transactionpanel, wxID_ANY, "EXIT", wxPoint(500, 460), wxSize(300, 100));
     exits->SetFont(textFont);
     exits->Bind(wxEVT_BUTTON, &ATMFrame::ExitButton, this);
 }
@@ -235,6 +254,7 @@ void ATMFrame::CheckBalance() {
     balance = new wxPanel(this);
     baltxt = new wxStaticText(balance, wxID_ANY, "BALANCE INQUIRY", wxPoint(215, 50));
     baltxt->SetFont(pastFont);
+
     BackButton = new wxButton(balance, wxID_ANY, "BACK", wxPoint(550, 550), wxSize(300, 100));
     BackButton->SetFont(textFont);
     BackButton->Bind(wxEVT_BUTTON, &ATMFrame::BalanceBack, this);
@@ -266,7 +286,7 @@ void ATMFrame::Deposit() {
 
     proceedD = new wxButton(depositpanel, wxID_ANY, "PROCEED", wxPoint(200, 200), wxSize(500, 100));
     proceedD->SetFont(textFont);
-    proceedD->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
+    proceedD->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacD, this);
 }
 
 void ATMFrame::Withdraw() {
@@ -293,11 +313,9 @@ void ATMFrame::Withdraw() {
 
     proceedW = new wxButton(withdraw, wxID_ANY, "PROCEED", wxPoint(200, 200), wxSize(500, 100));
     proceedW->SetFont(textFont);
-    proceedW->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
+    proceedW->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacW, this);
 
 }
-
-
 
 void ATMFrame::BankTransfer() {
     BankTransferPanel = new wxPanel(this);
@@ -336,7 +354,7 @@ void ATMFrame::BankTransfer() {
 
     proceed_trans_amnt = new wxButton(BankTransferPanel, wxID_ANY, "PROCEED", wxPoint(140, 250), wxSize(610, 60));
     proceed_trans_amnt->SetFont(textFont);
-    proceed_trans_amnt->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransac, this);
+    proceed_trans_amnt->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacBT, this);
 }
 
 void ATMFrame::Change() {
@@ -386,40 +404,69 @@ void ATMFrame::ATransac() {
     nobutton->Bind(wxEVT_BUTTON, &ATMFrame::AnotherTransacNo, this);
 }
 
+void ATMFrame::LoginExistingAcc(wxCommandEvent& evt) {
+    welcome->Hide();
+    Menu->Show();
+    Layout();
+}
+
+void ATMFrame::CreateNewAcc(wxCommandEvent& evt) {
+    welcome->Hide();
+    regpanel->Show();
+    wxMessageBox("Account Successfully Created");
+    Layout();
+}
+
+void ATMFrame::RegSubmitButton(wxCommandEvent& evt) {
+    regpanel->Hide();
+    Menu->Show();
+    Layout();
+}
 
 void ATMFrame::OnButtonClicked(wxCommandEvent& evt) {
-    Menu->Hide();
-    transaction->Show();
+    wxString pininput = pin->GetValue();
+    if (Transac.userLogin(pininput) == TRUE) {
+        Menu->Hide();
+        transactionpanel->Show();
+    }
+    else {
+        wxMessageBox("MALI KA BOSS");
+    }
     //regpanel->Show(); checker lang ng REGISTER PANEL
     Layout();
 }
 
 void ATMFrame::BalanceButton(wxCommandEvent& evt) {
-    transaction->Hide();
+    transactionpanel->Hide();
+    int balancedisplay = Transac.checkBal();
+    wxString convertedbalance;
+    convertedbalance << balancedisplay;
+    balanceD = new wxStaticText(balance, wxID_ANY, "Your Remaining Balance: " + convertedbalance, wxPoint(400, 100));
+    balanceD->SetFont(textFont);
     balance->Show();
     Layout();
 }
 
 void ATMFrame::DepositsButton(wxCommandEvent& evt) {
-    transaction->Hide();
+    transactionpanel->Hide();
     depositpanel->Show();
     Layout();
 }
 
 void ATMFrame::WithdrawsButton(wxCommandEvent& evt) {
-    transaction->Hide();
+    transactionpanel->Hide();
     withdraw->Show();
     Layout();
 }
 
 void ATMFrame::TransferButton(wxCommandEvent& evt) {
-    transaction->Hide();
+    transactionpanel->Hide();
     BankTransferPanel->Show();
     Layout();
 }
 
 void ATMFrame::ChangeButton(wxCommandEvent& evt) {
-    transaction->Hide();
+    transactionpanel->Hide();
     changepinpanel->Show();
     Layout();
 }
@@ -430,38 +477,75 @@ void ATMFrame::ExitButton(wxCommandEvent& evt) {
 
 void ATMFrame::BalanceBack(wxCommandEvent& evt) {
     balance->Hide();
-    transaction->Show();
+    transactionpanel->Show();
     Layout();
 }
 
 void ATMFrame::DepositBack(wxCommandEvent& evt) {
     depositpanel->Hide();
-    transaction->Show();
+    transactionpanel->Show();
     Layout();
 }
 
 void ATMFrame::WithdrawBack(wxCommandEvent& evt) {
     withdraw->Hide();
-    transaction->Show();
+    transactionpanel->Show();
     Layout();
 }
 
 void ATMFrame::FundTransBack(wxCommandEvent& evt) {
     BankTransferPanel->Hide();
-    transaction->Show();
+    transactionpanel->Show();
     Layout();
 }
 
 void ATMFrame::ChangePinBack(wxCommandEvent& evt) {
     changepinpanel->Hide();
-    transaction->Show();
+    transactionpanel->Show();
     Layout();
 }
 
-void ATMFrame::AnotherTransac(wxCommandEvent& evt) {
-    depositpanel->Hide();
-    withdraw->Hide();
+void ATMFrame::AnotherTransacW(wxCommandEvent& evt) {
+    
+    wxString withdrawamount = enteramountW->GetValue();
+    int newbalance;
+    newbalance = wxAtoi(withdrawamount);
+    int wAmount = Transac.withdraw(newbalance);
+        if (wAmount == -1) {
+            wxLogMessage("Please deposit enough money.");
+            withdraw->Hide();
+            atransaction->Show();
+        }
+        else {
+            wxString convertedamount;
+            convertedamount << wAmount;
+            withdraw->Hide();
+            atransaction->Show();
+            Layout();
+        }
+}
+
+void ATMFrame::AnotherTransacBT(wxCommandEvent& evt) {
     BankTransferPanel->Hide();
+    wxString AccNumTrans = recpnt_accn->GetValue();
+    wxString banktransferamount = trans_entr_amnt->GetValue();
+    int transferredbalance;
+    transferredbalance = wxAtoi(banktransferamount);
+    int BTAmount = Transac.bankTrans(transferredbalance, AccNumTrans);
+    wxString convertedbtbalance;
+    convertedbtbalance << BTAmount;
+    atransaction->Show();
+    Layout();
+}
+
+void ATMFrame::AnotherTransacD(wxCommandEvent& evt) {
+    depositpanel->Hide();
+    wxString depositamount = amountD->GetValue();
+    int newbalanceD;
+    newbalanceD = wxAtoi(depositamount);
+    int dAmount = Transac.deposit(newbalanceD);
+    wxString Dconvertedamount;
+    Dconvertedamount << dAmount;
     atransaction->Show();
     Layout();
 }
@@ -473,13 +557,25 @@ void ATMFrame::AnotherTransacNo(wxCommandEvent& evt) {
 
 void ATMFrame::ATBack(wxCommandEvent& evt) {
     atransaction->Hide();
-    transaction->Show();
+    transactionpanel->Show();
     Layout();
 }
 
 void ATMFrame::SChanged(wxCommandEvent& evt) {
-    wxMessageBox("SUCCESSFULLY CHANGED PIN");
-    changepinpanel->Hide();
-    transaction->Show();
-    Layout();
+    wxString changedPin = NewPin->GetValue();
+    wxString currentchangedPin = CurrentPin->GetValue();
+    wxString verifychangedPin = VerifyNewPin->GetValue();
+
+    if (changedPin == verifychangedPin) {
+        if (Transac.changePIN(currentchangedPin, changedPin) == true) {
+            wxMessageBox("SUCCESSFULLY CHANGED PIN");
+            changepinpanel->Hide();
+            transactionpanel->Show();
+            Layout();
+            Close(true);
+        }
+       
+    }
+
+    
 }
