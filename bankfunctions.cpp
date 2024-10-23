@@ -221,12 +221,14 @@ bool transaction::validateLoginOnBoth(wxString pin) {
     string acc_num;
     file >> acc_num;
 
+    wxString acc_numconverted(acc_num.c_str());
+    // wxMessageBox(acc_numconverted);
     if (!file.is_open()) {
         //cout << "Error opening USB file." << endl;
         return false;
     }
 
-    return (search(acc_num, pin) && searchInUSB(acc_num, pin));
+    return (search(acc_numconverted, pin) && searchInUSB(acc_numconverted, pin));
 }
 
 bool transaction::userLogin(wxString pin) {
