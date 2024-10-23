@@ -4,6 +4,9 @@
 #include <wx/datetime.h>
 #include <vector>
 
+wxPanel* log_in;
+wxPanel* bank_functions;
+wxPanel* create;
 
 wxFont titleFont(80, wxFONTFAMILY_SCRIPT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_EXTRABOLD);
 wxFont brandFont(15, wxFONTFAMILY_DECORATIVE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL);
