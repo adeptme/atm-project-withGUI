@@ -161,6 +161,7 @@ void ATMFrame::Welcome() {
     MenuText->SetFont(titleFont);
 
     EnterPin = new wxButton(Menu, wxID_ANY, "ENTER", wxPoint(520, 350), wxSize(100, 30));
+    EnterPin = Transac.validateLoginOnBoth;
 
     pintext = new wxStaticText(Menu, wxID_ANY, "ENTER PIN", wxPoint(300, 330));
     pin = new wxTextCtrl(Menu, wxID_ANY, "", wxPoint(300, 350), wxSize(200, 30), wxTE_PASSWORD);
@@ -404,7 +405,6 @@ void ATMFrame::ATransac() {
 }
 
 void ATMFrame::LoginExistingAcc(wxCommandEvent& evt) {
-    wxMessageBox("Account Successfully Created");
     welcome->Hide();
     Menu->Show();
     Layout();
@@ -413,6 +413,7 @@ void ATMFrame::LoginExistingAcc(wxCommandEvent& evt) {
 void ATMFrame::CreateNewAcc(wxCommandEvent& evt) {
     welcome->Hide();
     regpanel->Show();
+    wxMessageBox("Account Successfully Created");
     Layout();
 }
 
