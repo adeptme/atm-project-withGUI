@@ -26,7 +26,7 @@ public:
     wxString decrypt(wxString pin);
     wxString encrypt(wxString pin);
 
-    void idleUSB(transaction transac);
+    bool idleUSB(transaction transac);
 
     // search function
     bool isEmpty();

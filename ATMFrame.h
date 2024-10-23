@@ -1,6 +1,7 @@
 #pragma once
 #include <wx/wx.h>
 #include <wx/calctrl.h>
+#include <wx/timer.h>
 #include "bankfunctions.h"
 #include "Create.h"
 
@@ -15,6 +16,7 @@ public:
 private:
 	// PANEL FUNCTIONS
 	void Welcome();
+	void Wait();
 	void Register();
 	void Transaction();
 	void CheckBalance();
