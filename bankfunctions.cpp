@@ -12,23 +12,23 @@
 using namespace std;
 
 wxString transaction::decrypt(wxString pin) {   // decryption
-    wxString temp = wxString(pin.mb_str()); // Convert wxString to std::wxString
+    string temp = string(pin.mb_str()); // Convert wxString to std::wxString
 
     for (size_t i = 0; i < temp.size(); i++) {
         temp[i] = temp[i] - 200;           // Decrypt by adjusting ASCII value
     }
 
-    return wxString(temp);                 // Convert back to wxString and return
+    return temp;                 // Convert back to wxString and return
 }
 
 wxString transaction::encrypt(wxString pin) {   // encryption
-    wxString temp = wxString(pin.mb_str()); // Convert wxString to std::wxString
+    string temp = string(pin.mb_str()); // Convert wxString to std::wxString
 
     for (size_t i = 0; i < temp.size(); i++) {
         temp[i] = temp[i] + 200;           // Encrypt by adjusting ASCII value
     }
 
-    return wxString(temp);                 // Convert back to wxString and return
+    return temp;                 // Convert back to wxString and return
 }
 
 bool transaction::isEmpty() {
@@ -40,13 +40,13 @@ bool transaction::detectFlashDrive() {
     //cout << "Flash drive detected: ";
     for (char drive = 'D'; drive <= 'Z'; drive++) {
         if (fd & (1 << (drive - 'A'))) {
-            fdpath = wxString(1, drive) + ":/"; // makes a wxString storing the path to drive
+            string fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
 
             //cout << fdpath << " "; // debug
 
             if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
                 //cout << "\nFlash drive detected at: " << fdpath << endl;
-                drivepath = fdpath + "ATMaccount.txt"; // directory of ATMAccount.txt in the drive
+                string drivepath = fdpath + "ATMaccount.txt"; // directory of ATMAccount.txt in the drive
                 ifstream file(drivepath);
                 if (file.good()) { // program proceeds to logging in
                     //cout << "Account in USB exists.";
@@ -78,14 +78,31 @@ bool transaction::accountFound(wxString target) {
 }
 
 bool transaction::searchInUSB(wxString acc_num, wxString pin) {
+
+    string drivepath, fdpath;
+    DWORD fd = GetLogicalDrives();
+    //cout << "Flash drive detected: ";
+    for (char drive = 'D'; drive <= 'Z'; drive++) {
+        if (fd & (1 << (drive - 'A'))) {
+            fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
+
+            //cout << fdpath << " "; // debug
+
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
+                drivepath = fdpath + "ATMaccount.txt";
+                //cout << "\nFlash drive detected at: " << fdpath << endl;
+            }
+        }
+    }
     ifstream file(drivepath);
     if (!file.is_open()) {
         //cout << "Error opening USB file." << endl;
         return false;
     }
 
-    wxString fileCardNumber, encryptedPin;
+    string fileCardNumber, encryptedPin;
     while (file >> fileCardNumber >> encryptedPin) {
+
         if (fileCardNumber == acc_num) {
             // Decrypt the PIN
             wxString decryptedPin = decrypt(encryptedPin);
@@ -126,7 +143,7 @@ void transaction::saveToFile() {
     file.close();
 }
 
-void transaction::filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, wxString fileBalance, wxString fileBirthday, wxString fileContact) { // pushes data of file to a linked list
+void transaction::filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance, wxString fileBirthday, wxString fileContact) { // pushes data of file to a linked list
     account* newaccount = new account();
     newaccount->name = fileName;
     newaccount->cardNum = fileCardNumber;
@@ -136,13 +153,15 @@ void transaction::filetoLink(wxString fileName, wxString filePin, wxString fileC
     newaccount->contact = fileContact;
     newaccount->next = NULL;
 
+    wxMessageBox("%s", fileName);
+
     //cout << "User: " << newaccount->name << endl;
     //cout << "Card Number: " << newaccount->cardNum << endl;
     //cout << "Pin: " << newaccount->pincode << endl;
     //cout << "Balance: " << newaccount->balance << endl;
     //cout << "Birthday: " << newaccount->birthday << endl;
     //cout << "Contact Number: " << newaccount->contact << endl << endl;
-    system("pause");
+    //system("pause");
 
     if (isEmpty()) {
         first = accounts = newaccount;
@@ -161,8 +180,8 @@ void transaction::retrieve() {
         //cout << "File Error" << endl;
         return;
     }
-    wxString skip;
-    wxString fileName, filePin, fileCardNumber, fileBalance, fileBirthday, fileContact;
+    string skip;
+    string fileName, filePin, fileCardNumber,fileBalance, fileBirthday, fileContact;
 
     while (!file.eof()) {
         //getline(file, skip); // to skip 1st line
@@ -176,8 +195,8 @@ void transaction::retrieve() {
         getline(file, fileBirthday);
         getline(file, fileContact);
 
-
-        filetoLink(fileName, filePin, fileCardNumber, fileBalance, fileBirthday, fileContact);
+        int fileBal = stoi(fileBalance);
+        filetoLink(fileName, filePin, fileCardNumber, fileBal, fileBirthday, fileContact);
     }
     file.close();
 }
@@ -232,49 +251,29 @@ bool transaction::search(wxString acc_num, wxString pin) {
     return false;
 }
 
-void transaction::mainMenu() {
-    //cout << "\n***************************";
-    //cout << "\n\tATM MACHINE\n";
-    //cout << "***************************";
-    //cout << "\n1.) Login";
-    //cout << "\n0.) Exit";
-    //cout << "\nEnter your choice: ";
-}
+int transaction::withdraw(int inputbalance) {
 
-void transaction::withdraw() {
-    int amount;
     //cout << "Enter amount to withdraw: ";
     //cin >> amount;
 
-    int bal = std::stoi(login->balance);
+    if (login->balance >= inputbalance) {
 
-    if (bal >= amount) {
-        bal -= amount;
-
-        login->balance = std::to_string(bal);
-
-        //cout << "Withdrawal successful! Remaining balance: " << fixed << setprecision(2) << bal << endl;
+        login->balance -= inputbalance;
         saveToFile();
+        //cout << "Withdrawal successful! Remaining balance: " << fixed << setprecision(2) << bal << endl;
+        return login->balance;
+        
     }
     else {
         //cout << "Insufficient balance!\n";
     }
 }
 
-void transaction::checkBal() {
-    wxString balance;
-    int bal = std::stoi(login->balance);
-    if (bal > 0) {
-        //cout << " Your current balance is: " << login->balance << endl;
-    }
-    else {
-        //cout << "Invalid balance." << endl;
-    }
+int transaction::checkBal() {
+    return login->balance;
 }
 
-void transaction::bankTrans() {
-    int amountrans;
-    wxString targetcardnum;
+int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
 
     while (1) {
         //cout << "Enter the target account number: ";
@@ -284,20 +283,20 @@ void transaction::bankTrans() {
             //cout << "Enter amount to transfer: ";
             //cin >> amountrans;
 
-            if (login->balance >= amountrans) {
+            if (login->balance >= amounttransfer) {
                 account* targetAccount = first;
 
                 // Find the target account
                 while (targetAccount != NULL) {
                     if (targetAccount->cardNum == targetcardnum) {
-                        login->balance -= amountrans;
+                        login->balance -= amounttransfer;
 
-                        int targetbal += targetAccount->balance;
+                        targetAccount->balance += amounttransfer;
 
                         //cout << "Transfer Successful! Your remaining balance is " << bal << endl;
 
                         saveToFile();
-                        return;
+                        return login->balance;
                     }
                     targetAccount = targetAccount->next;
                 }
@@ -306,23 +305,10 @@ void transaction::bankTrans() {
                 //cout << "Insufficient Balance!" << endl;
             }
         }
-        else {
-            char retry;
-            //cout << "Target account not found! Would you like to try again? (Y/N): ";
-            //cin >> retry;
-
-            if (retry == 'Y' || retry == 'y') {
-                continue;
-            }
-            else {
-                //cout << "Transfer cancelled!" << endl;
-                return;
-            }
-        }
     }
 }
 
-void transaction::loginWithFlashDrive() {
+bool transaction::loginWithFlashDrive() {
 
     wxString acc_num, pin;
     //cout << "Enter your account number: ";
@@ -331,10 +317,7 @@ void transaction::loginWithFlashDrive() {
     //cin >> pin;
 
     if (validateLoginOnBoth(acc_num, pin)) {
-        //cout << "\n\nLog In Successfully!!!\n";
-    }
-    else {
-        //cout << "\n\nAccount Number or PIN incorrect!!!\n";
+        return true;
     }
 }
 
@@ -389,6 +372,22 @@ void transaction::changePIN() {
 
 void transaction::updatePinInFile(wxString newPin) {
 
+    string drivepath, fdpath;
+    DWORD fd = GetLogicalDrives();
+    //cout << "Flash drive detected: ";
+    for (char drive = 'D'; drive <= 'Z'; drive++) {
+        if (fd & (1 << (drive - 'A'))) {
+            fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
+
+            //cout << fdpath << " "; // debug
+
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
+                drivepath = fdpath + "ATMaccount.txt";
+                //cout << "\nFlash drive detected at: " << fdpath << endl;
+            }
+        }
+    }
+   
     ofstream changefile(drivepath);
 
     if (!changefile) {
@@ -417,7 +416,7 @@ void transaction::idleUSB(transaction transac) {
     }
 }
 
-
+/*
 int main() {
     transaction transac;
     int choice;
@@ -446,7 +445,7 @@ int main() {
             break;
 
         case 0:
-            system("cls");
+            //system("cls");
             //cout << "Thank you for using this ATM";
             return 0;
 
@@ -454,4 +453,4 @@ int main() {
             //cout << "Invalid choice, Please try again.";
         }
     }
-}
+}*/

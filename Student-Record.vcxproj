@@ -151,6 +151,9 @@
     <ClInclude Include="bankfunctions.h" />
     <ClInclude Include="Create.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="accounts.txt" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

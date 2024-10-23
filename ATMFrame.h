@@ -2,12 +2,15 @@
 #include <wx/wx.h>
 #include <wx/calctrl.h>
 #include "bankfunctions.h"
-#include "Create.h"
+//#include "Create.h"
 
 class ATMFrame : public wxFrame
 {
 public:
+	
 	ATMFrame(const wxString& title);
+	transaction Transac;
+private:
 	void Welcome();
 	void Register();
 	void Transaction();
@@ -17,7 +20,6 @@ public:
 	void BankTransfer();
 	void Change();
 	void ATransac();
-private:
 	void LoginExistingAcc(wxCommandEvent& evt);
 	void CreateNewAcc(wxCommandEvent& evt);
 	void RegSubmitButton(wxCommandEvent& evt);

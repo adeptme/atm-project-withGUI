@@ -111,6 +111,7 @@ wxTextCtrl* pin;//for pin input at the start
 
 
 ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
+    Transac.retrieve();
     welcome = new wxPanel(this);
     loginexistingacc = new wxButton(welcome, wxID_ANY, "Login existing account", wxPoint(450, 400), wxSize(400, 25));
     loginexistingacc->Bind(wxEVT_BUTTON, &ATMFrame::LoginExistingAcc, this);
