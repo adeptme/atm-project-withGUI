@@ -20,33 +20,34 @@ private:
     account* accounts;
     account* login;
 public:
-
     transaction() : first(nullptr), accounts(nullptr), login(nullptr) {}
+    
+    // encryption & decryption
     wxString decrypt(wxString pin);
     wxString encrypt(wxString pin);
+
+    void idleUSB(transaction transac);
+
+    // search function
     bool isEmpty();
     bool detectFlashDrive();
     bool accountFound(wxString target);
-   
-    void retrieve();
-    void saveToFile();
-    void filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance, wxString fileBirthday, wxString fileContact);
-
     bool search(wxString acc_num, wxString pin);
     bool validateLoginOnBoth(wxString pin);
     bool searchInUSB(wxString acc_num, wxString pin);
     bool userLogin(wxString pin);
     bool comparepin(wxString newPIN);
-    //bool validateOnBoth(wxwxString acc_num, wxwxString pin, wxwxString (*decryptFunc)(const wxwxString&));
-    void idleUSB(transaction transac);
-    
     bool changePIN(wxString currentPin, wxString newPin);
+
+    // file handling
+    void retrieve();
+    void saveToFile();
+    void filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance, wxString fileBirthday, wxString fileContact);
+
+    // bank functions
     int deposit(int Damount);
     int withdraw(int inputbalance);
     int checkBal();
     int bankTrans(int amounttransfer, wxString targetcardnum);
-    //void accSett();
-    //void updateAccount(const account& updatedAccount);
     void updatePinInFile(wxString newPin);
-    bool loginWithFlashDrive();
 };

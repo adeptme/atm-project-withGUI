@@ -153,20 +153,10 @@ void transaction::filetoLink(wxString fileName, wxString filePin, wxString fileC
     newaccount->contact = fileContact;
     newaccount->next = NULL;
 
-    wxMessageBox("%s", fileName);
-
-    //cout << "User: " << newaccount->name << endl;
-    //cout << "Card Number: " << newaccount->cardNum << endl;
-    //cout << "Pin: " << newaccount->pincode << endl;
-    //cout << "Balance: " << newaccount->balance << endl;
-    //cout << "Birthday: " << newaccount->birthday << endl;
-    //cout << "Contact Number: " << newaccount->contact << endl << endl;
-    //system("pause");
+    // wxMessageBox("%s", fileName); // to check whether the stream reads from the file and puts it to linked list
 
     if (isEmpty()) {
         first = accounts = newaccount;
-        //cout << "first account" << endl;
-
     }
     else {
         accounts->next = newaccount;
@@ -176,19 +166,17 @@ void transaction::filetoLink(wxString fileName, wxString filePin, wxString fileC
 
 void transaction::retrieve() {
     ifstream file("accounts.txt");
-    if (!file.is_open()) {
-        //cout << "File Error" << endl;
+    if (!file.is_open()) { // File Error
         return;
     }
     string skip;
     string fileName, filePin, fileCardNumber,fileBalance, fileBirthday, fileContact;
 
     while (!file.eof()) {
-        //getline(file, skip); // to skip 1st line
         getline(file, fileName);
-        if (fileName.empty()) {
-            return;
-        }
+            if (fileName.empty()) { // to prevent the iteration if stream reads a blank line
+                return;
+            }
         getline(file, filePin);
         getline(file, fileCardNumber);
         getline(file, fileBalance);
@@ -211,9 +199,9 @@ bool transaction::validateLoginOnBoth(wxString pin) {
 
             //cout << fdpath << " "; // debug
 
-            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) { // Flash drive detected
                 drivepath = fdpath + "ATMaccount.txt";
-                //cout << "\nFlash drive detected at: " << fdpath << endl;
+                
             }
         }
     }
@@ -222,9 +210,7 @@ bool transaction::validateLoginOnBoth(wxString pin) {
     file >> acc_num;
 
     wxString acc_numconverted(acc_num.c_str());
-    // wxMessageBox(acc_numconverted);
-    if (!file.is_open()) {
-        //cout << "Error opening USB file." << endl;
+    if (!file.is_open()) { // Error opening USB file
         return false;
     }
 
@@ -233,12 +219,10 @@ bool transaction::validateLoginOnBoth(wxString pin) {
 
 bool transaction::userLogin(wxString pin) {
 
-    if (validateLoginOnBoth(pin) == true) {
-        //cout << "\n\nLog In Successfully!!!\n";
+    if (validateLoginOnBoth(pin) == true) { // Log In Successfully
         return true;
     }
-    else {
-        //cout << "\n\nAccount Number or PIN incorrect!!!\n";
+    else { // Account Number or PIN incorrect
         return false;
     }
 }
@@ -274,21 +258,12 @@ int transaction::deposit(int Damount) {
 }
 
 int transaction::withdraw(int inputbalance) {
-
-    //cout << "Enter amount to withdraw: ";
-    //cin >> amount;
-
     if (login->balance >= inputbalance) {
-
         login->balance -= inputbalance;
         saveToFile();
-        //cout << "Withdrawal successful! Remaining balance: " << fixed << setprecision(2) << bal << endl;
         return login->balance;
-        
     }
-    else {
-        //cout << "Insufficient balance!\n";
-    }
+    return -1;
 }
 
 int transaction::checkBal() {
@@ -300,12 +275,8 @@ int transaction::checkBal() {
 int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
 
     while (1) {
-        //cout << "Enter the target account number: ";
-        //cin >> targetcardnum;
 
         if (accountFound(targetcardnum)) {
-            //cout << "Enter amount to transfer: ";
-            //cin >> amountrans;
 
             if (login->balance >= amounttransfer) {
                 account* targetAccount = first;
@@ -317,8 +288,6 @@ int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
 
                         targetAccount->balance += amounttransfer;
 
-                        //cout << "Transfer Successful! Your remaining balance is " << bal << endl;
-
                         saveToFile();
                         return login->balance;
                     }
@@ -326,49 +295,10 @@ int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
                 }
             }
             else {
-                //cout << "Insufficient Balance!" << endl;
             }
         }
     }
 }
-
-/*
-void transaction::accSett() {
-    wxString newPin;
-    //cout << "Enter new PIN (4 digits): ";
-
-    while (true) {
-        newPin.clear();
-        char ch;
-        while (newPin.length() < 4) {
-            ch = _getch();
-            if (isdigit(ch)) {
-                newPin += ch;
-                //cout << '*';
-            } else if (ch == 13) {
-                break;
-            } else if (ch == 8 && !newPin.empty()) {
-                newPin.pop_back();
-                //cout << "\b \b";
-            }
-        }
-
-        if (newPin.length() == 4) {
-            break;
-        } else {
-            //cout << "\nInvalid input. PIN must be exactly 4 digits." << endl;
-            //cout << "Enter new PIN (4 digits): ";
-        }
-    }
-
-
-    login->pincode = newPin;
-
-    //cout << "\nPIN updated successfully." << endl;
-
-    //updateAccount(*login);
-    //updatePinInFile(*login, newPin);
-} */
 
 bool transaction::changePIN(wxString currentPin, wxString newPin) {
 
