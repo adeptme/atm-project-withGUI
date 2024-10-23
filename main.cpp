@@ -161,7 +161,7 @@ void ATMFrame::Welcome() {
     MenuText->SetFont(titleFont);
 
     EnterPin = new wxButton(Menu, wxID_ANY, "ENTER", wxPoint(520, 350), wxSize(100, 30));
-    EnterPin = Transac.validateLoginOnBoth;
+
 
     pintext = new wxStaticText(Menu, wxID_ANY, "ENTER PIN", wxPoint(300, 330));
     pin = new wxTextCtrl(Menu, wxID_ANY, "", wxPoint(300, 350), wxSize(200, 30), wxTE_PASSWORD);
@@ -424,8 +424,14 @@ void ATMFrame::RegSubmitButton(wxCommandEvent& evt) {
 }
 
 void ATMFrame::OnButtonClicked(wxCommandEvent& evt) {
-    Menu->Hide();
-    transaction->Show();
+    wxString pininput = pin->GetValue();
+    if (Transac.userLogin(pininput) == TRUE) {
+        Menu->Hide();
+        transaction->Show();
+    }
+    else {
+        wxMessageBox("MALI KA BOSS");
+    }
     //regpanel->Show(); checker lang ng REGISTER PANEL
     Layout();
 }
