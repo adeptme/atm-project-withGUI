@@ -62,6 +62,8 @@ wxCalendarCtrl* regcalendar;
 
 wxButton* regsubmitbutton;
 
+wxString bDayDate;
+
 //Check Balance Panel
 wxPanel* balance;
 wxStaticText* balanceD;
@@ -207,7 +209,7 @@ void ATMFrame::Register() {
     regcalendartxt = new wxStaticText(regpanel, wxID_ANY, "BIRTHDAY", wxPoint(150, 350));
     regcalendartxt->SetFont(brandFont);
     regcalendar = new wxCalendarCtrl(regpanel, wxID_ANY, wxDefaultDateTime, wxPoint (500, 350));
-    //calendar->Bind(wxEVT_CALENDAR_SEL_CHANGED, &MainFrame::OnDateChanged, this);
+    regcalendar->Bind(wxEVT_CALENDAR_SEL_CHANGED, &ATMFrame::bDayDateChanged, this);
 
     regsubmitbutton = new wxButton(regpanel, wxID_ANY, "SUBMIT", wxPoint(500, 550), wxSize(400, 25));
     regsubmitbutton->Bind(wxEVT_BUTTON, &ATMFrame::RegSubmitButton, this);
@@ -420,6 +422,17 @@ void ATMFrame::RegSubmitButton(wxCommandEvent& evt) {
     regpanel->Hide();
     Menu->Show();
     Layout();
+    wxString nName = regnameField->GetValue();
+    wxString nContact = regcontactField->GetValue();
+    wxString nPin = regpinField->GetValue();
+    wxString nBal = regbalanceField->GetValue();
+    int nBalance = wxAtoi(nBal);
+   
+    Create.createAccount(nName, nPin, nBalance, bDayDate, nContact);
+        
+        
+        
+        
 }
 
 void ATMFrame::OnButtonClicked(wxCommandEvent& evt) {
@@ -577,4 +590,11 @@ void ATMFrame::SChanged(wxCommandEvent& evt) {
     }
 
     
+}
+
+void ATMFrame::bDayDateChanged(wxCalendarEvent& evt) {
+    wxDateTime date = evt.GetDate();
+    wxString dateStr = date.FormatISODate();
+    bDayDate = dateStr;
+        
 }

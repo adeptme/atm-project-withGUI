@@ -52,4 +52,7 @@ private:
 	void WithdrawBack(wxCommandEvent& evt);
 	void FundTransBack(wxCommandEvent& evt);
 	void ChangePinBack(wxCommandEvent& evt);//hanggang dito yung button for each transaction
+
+	//Calendar
+	void bDayDateChanged(wxCalendarEvent& evt);
 };
