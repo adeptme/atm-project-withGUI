@@ -264,7 +264,7 @@ void ATMFrame::Register() {
     regcalendar = new wxCalendarCtrl(regpanel, wxID_ANY, wxDefaultDateTime, wxPoint (500, 350));
     regcalendar->Bind(wxEVT_CALENDAR_SEL_CHANGED, &ATMFrame::bDayDateChanged, this);
 
-    regsubmitbutton = new wxButton(regpanel, wxID_ANY, "SUBMIT", wxPoint(500, 550), wxSize(400, 25));
+    regsubmitbutton = new wxButton(regpanel, wxID_ANY, "SUBMIT", wxPoint(500, 550), wxSize(400, 100));
     regsubmitbutton->Bind(wxEVT_BUTTON, &ATMFrame::RegSubmitButton, this);
     regsubmitbutton->SetFont(brandFont);
     regsubmitbutton->SetBackgroundColour(buttoncolor);
@@ -500,7 +500,7 @@ void ATMFrame::LoginExistingAcc(wxCommandEvent& evt) {
             wxMessageBox("CARD detected.");
             wait->Hide();
             login->Show();
-        } else if (Create.detectFlashDrive() == 0) {
+        } else if (Transac.detectFlashDrive() == 0) {
             timer->Start(100);
             timer->Stop();
             timer->Stop();

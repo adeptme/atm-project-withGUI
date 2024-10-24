@@ -59,6 +59,7 @@ int transaction::detectFlashDrive() {
             }
         }
     }
+    // card is not detected
     return -1;
 }
 

@@ -63,7 +63,7 @@ int create::detectFlashDrive() {
                 }
             }
         }
-    } // no flash drive found
+    } // card is not detected
     return -1;
 }
 

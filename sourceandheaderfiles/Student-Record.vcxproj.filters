@@ -32,7 +32,7 @@
     <ClInclude Include="ATMFrame.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="App.h">
+    <ClInclude Include="sourceandheaderfiles\App.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="bankfunctions.h">
