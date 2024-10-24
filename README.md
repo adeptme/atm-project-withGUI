@@ -14,6 +14,6 @@ Accounts registered will be stored in a database located in the *sourceandheader
 ---
 
 Running the ATM Program requires: 
-- **Visual Studio** with *Desktop Development with C++ Workload*.
+- **Visual Studio** with *Desktop Development with C++ Workload*. 
 
 This project is also available in its [**CLI Version**](https://github.com/adeptme/ATM-PROJECT-DSA).
