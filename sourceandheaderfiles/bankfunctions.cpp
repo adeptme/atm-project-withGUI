@@ -301,7 +301,7 @@ void transaction::updatePinInFile(wxString newPin) {
 
     string drivepath, fdpath;
     DWORD fd = GetLogicalDrives();
-    //cout << "Flash drive detected: ";
+    
     for (char drive = 'D'; drive <= 'Z'; drive++) {
         if (fd & (1 << (drive - 'A'))) {
             fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive

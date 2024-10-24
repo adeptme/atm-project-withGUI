@@ -140,12 +140,6 @@ ATMFrame::ATMFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title) {
     welcome = new wxPanel(this);
     welcome->SetBackgroundColour(backgroundcolor);
 
- /*   wxPNGHandler* handler = new wxPNGHandler;
-    wxImage::AddHandler(handler);
-    wxStaticBitmap* image;
-    image = new wxStaticBitmap(this, wxID_ANY, wxBitmap("Windows_7_logo.png", wxBITMAP_TYPE_PNG), wxPoint(50, 100), wxSize(100, 500)); */
-
-
     loginexistingacc = new wxButton(welcome, wxID_ANY, "Login existing account", wxPoint(350, 400), wxSize(600, 150));
     loginexistingacc->Bind(wxEVT_BUTTON, &ATMFrame::LoginExistingAcc, this);
     loginexistingacc->SetBackgroundColour(buttoncolor);
