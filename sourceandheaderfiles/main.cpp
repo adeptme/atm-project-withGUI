@@ -258,7 +258,7 @@ void ATMFrame::Register() {
     regnametxt->SetForegroundColour(textcolor);
     regnametxt->SetFont(loginFont);
 
-    regnameField = new wxTextCtrl(regpanel, wxID_ANY, "ex. Juan C. Dela Cruz", wxPoint(460, 115), wxSize(400, 25));
+    regnameField = new wxTextCtrl(regpanel, wxID_ANY, "ex. Juan C. Dela Cruz", wxPoint(460, 115), wxSize(400, 25), wxTE_CENTRE);
     regnameField->SetFont(ModernFont);
     regnameField->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
         if (regnameField->GetValue() == "ex. Juan C. Dela Cruz") {
@@ -272,7 +272,7 @@ void ATMFrame::Register() {
     regpintxt->SetForegroundColour(textcolor);
     regpintxt->SetFont(loginFont);
 
-    regpinField = new wxTextCtrl(regpanel, wxID_ANY, "****", wxPoint(460, 175), wxSize(400, 25), wxTE_PASSWORD);
+    regpinField = new wxTextCtrl(regpanel, wxID_ANY, "****", wxPoint(460, 175), wxSize(400, 25), wxTE_PASSWORD | wxTE_CENTRE);
     regpinField->SetFont(fieldFont);
     regpinField->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     regpinField->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
@@ -287,7 +287,7 @@ void ATMFrame::Register() {
     regbalancetxt->SetForegroundColour(textcolor);
     regbalancetxt->SetFont(loginFont);
 
-    regbalanceField = new wxTextCtrl(regpanel, wxID_ANY, "Minimum amount: 5000 PHP", wxPoint(460, 235), wxSize(400, 25));
+    regbalanceField = new wxTextCtrl(regpanel, wxID_ANY, "Minimum amount: 5000 PHP", wxPoint(460, 235), wxSize(400, 25), wxTE_CENTRE);
     regbalanceField->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     regbalanceField->SetFont(ModernFont);
     regbalanceField->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
@@ -304,7 +304,7 @@ void ATMFrame::Register() {
     regcontact63->SetForegroundColour(textcolor);
     regcontacttxt->SetFont(loginFont);
     regcontact63->SetFont(loginFont);
-    regcontactField = new wxTextCtrl(regpanel, wxID_ANY, "*********", wxPoint(460, 295), wxSize(400, 25));
+    regcontactField = new wxTextCtrl(regpanel, wxID_ANY, "*********", wxPoint(460, 295), wxSize(400, 25), wxTE_CENTRE);
     regcontactField->SetFont(fieldFont);
     regcontactField->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
         if (regcontactField->GetValue() == "*********") {
@@ -406,7 +406,7 @@ void ATMFrame::Deposit() {
     amounttextD->SetForegroundColour(textcolor);
     amounttextD->SetFont(textFont);
 
-    amountD = new wxTextCtrl(depositpanel, wxID_ANY, "Minimum amount: 500 PHP", wxPoint(500, 300), wxSize(300, 50));
+    amountD = new wxTextCtrl(depositpanel, wxID_ANY, "Minimum amount: 500 PHP", wxPoint(500, 300), wxSize(300, 50), wxTE_CENTRE);
     amountD->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     amountD->SetFont(fieldFont);
     amountD->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
@@ -441,7 +441,7 @@ void ATMFrame::Withdraw() {
     amountW->SetForegroundColour(textcolor);
     amountW->SetFont(textFont);
 
-    enteramountW = new wxTextCtrl(withdraw, wxID_ANY, "Minimum amount: 500 PHP", wxPoint(500, 300), wxSize(300, 50));
+    enteramountW = new wxTextCtrl(withdraw, wxID_ANY, "Minimum amount: 500 PHP", wxPoint(500, 300), wxSize(300, 50), wxTE_CENTRE);
     enteramountW->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     enteramountW->SetFont(fieldFont);
     enteramountW->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
@@ -479,14 +479,15 @@ void ATMFrame::BankTransfer() {
     recpnt_accntxt->SetForegroundColour(textcolor);
     recpnt_accntxt->SetFont(textFont);
 
-    recpnt_accn = new wxTextCtrl(BankTransferPanel, wxID_ANY, "", wxPoint(500, 200), wxSize(300, 50));
+    recpnt_accn = new wxTextCtrl(BankTransferPanel, wxID_ANY, "", wxPoint(500, 200), wxSize(300, 50), wxTE_CENTRE);
     recpnt_accn->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     recpnt_accn->SetFont(fieldFont);
 
     trans_entr_amnttxt = new wxStaticText(BankTransferPanel, wxID_ANY, "ENTER AMOUNT:", wxPoint(500, 300));
     trans_entr_amnttxt->SetForegroundColour(textcolor);
     trans_entr_amnttxt->SetFont(textFont);
-    trans_entr_amnt = new wxTextCtrl(BankTransferPanel, wxID_ANY, "Minimum amount: 500 PHP", wxPoint(500, 350), wxSize(300, 50));
+
+    trans_entr_amnt = new wxTextCtrl(BankTransferPanel, wxID_ANY, "Minimum amount: 500 PHP", wxPoint(500, 350), wxSize(300, 50), wxTE_CENTRE);
     trans_entr_amnt->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     trans_entr_amnt->SetFont(fieldFont);
     trans_entr_amnt->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
@@ -496,7 +497,6 @@ void ATMFrame::BankTransfer() {
         }
         event.Skip();
         });
-
 
     proceed_trans_amnt = new wxButton(BankTransferPanel, wxID_ANY, "PROCEED", wxPoint(500, 500), wxSize(300, 80));
     proceed_trans_amnt->SetFont(ButtonTextFont);
@@ -525,7 +525,7 @@ void ATMFrame::Change() {
     CurrentPinText->SetForegroundColour(textcolor);
     CurrentPinText->SetFont(textFont);
 
-    CurrentPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(500, 195), wxSize(300, 40), wxTE_PASSWORD);
+    CurrentPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(500, 195), wxSize(300, 40), wxTE_PASSWORD | wxTE_CENTRE);
     CurrentPin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     CurrentPin->SetFont(fieldFont);
 
@@ -533,7 +533,7 @@ void ATMFrame::Change() {
     NewPinText->SetForegroundColour(textcolor);
     NewPinText->SetFont(textFont);
 
-    NewPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(500, 295), wxSize(300, 40), wxTE_PASSWORD);
+    NewPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(500, 295), wxSize(300, 40), wxTE_PASSWORD | wxTE_CENTRE);
     NewPin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     NewPin->SetFont(fieldFont);
 
@@ -541,7 +541,7 @@ void ATMFrame::Change() {
     VerifyNewPinText->SetForegroundColour(textcolor);
     VerifyNewPinText->SetFont(textFont);
 
-    VerifyNewPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(500, 395), wxSize(300, 40), wxTE_PASSWORD);
+    VerifyNewPin = new wxTextCtrl(changepinpanel, wxID_ANY, "", wxPoint(500, 395), wxSize(300, 40), wxTE_PASSWORD | wxTE_CENTRE);
     VerifyNewPin->SetValidator(wxTextValidator(wxFILTER_DIGITS));
     VerifyNewPin->SetFont(fieldFont);
 
