@@ -32,7 +32,7 @@ public:
     wxString decrypt(wxString pin);
 
     bool isEmpty();
-    bool detectFlashDrive();
+    int detectFlashDrive();
     
     void retrieveFromDatabase();
     
@@ -42,5 +42,4 @@ public:
     void saveAccounts(wxString tCardNum, wxString tPin);
     void LinktoDatabase(wxString fileName, wxString filePin, wxString fileCardNum, int fileBalance, wxString fileBirthday, wxString fileContact);
     
-    //bool idleUSB(create);
 };

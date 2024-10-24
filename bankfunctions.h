@@ -26,11 +26,9 @@ public:
     wxString decrypt(wxString pin);
     wxString encrypt(wxString pin);
 
-    bool idleUSB(transaction transac);
-
     // search function
     bool isEmpty();
-    bool detectFlashDrive();
+    int detectFlashDrive();
     bool accountFound(wxString target);
     bool search(wxString acc_num, wxString pin);
     bool validateLoginOnBoth(wxString pin);

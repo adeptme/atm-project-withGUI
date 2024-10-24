@@ -35,7 +35,7 @@ bool transaction::isEmpty() {
     return (first == NULL && accounts == NULL);
 }
 
-bool transaction::detectFlashDrive() {
+int transaction::detectFlashDrive() {
     DWORD fd = GetLogicalDrives();
     
     for (char drive = 'D'; drive <= 'Z'; drive++) {
@@ -50,18 +50,16 @@ bool transaction::detectFlashDrive() {
                 ifstream file(drivepath);
                 if (file.good()) { // program proceeds to logging in
                     file.close();
-                    return true;
+                    return 1;
                 }
                 else { // exits program as file does not exist
-                    wxLogMessage("CARD is not registered.");
                     file.close();
-                    return false;
+                    return 0;
                 }
             }
         }
     }
-    wxLogMessage("Please insert CARD.");
-    return false;
+    return -1;
 }
 
 bool transaction::accountFound(wxString target) {
@@ -183,7 +181,7 @@ void transaction::retrieve() {
 bool transaction::validateLoginOnBoth(wxString pin) {
     string drivepath, fdpath;
     DWORD fd = GetLogicalDrives();
-    //cout << "Flash drive detected: ";
+
     for (char drive = 'D'; drive <= 'Z'; drive++) {
         if (fd & (1 << (drive - 'A'))) {
             fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
@@ -204,6 +202,7 @@ bool transaction::validateLoginOnBoth(wxString pin) {
         wxLogMessage("Error reading file.");
         return false;
     }
+    file.close();
     
     return (search(acc_numconverted, pin) && searchInUSB(acc_numconverted, pin));
 }
@@ -292,9 +291,6 @@ int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
 
 bool transaction::changePIN(wxString currentPin, wxString newPin) {
 
-    //cout << "Enter your PIN: ";
-    //cin >> newPin;
-
     if (comparepin(currentPin) == true) {
         login->pincode = newPin;
         saveToFile();
@@ -319,12 +315,8 @@ void transaction::updatePinInFile(wxString newPin) {
         if (fd & (1 << (drive - 'A'))) {
             fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
 
-            //cout << fdpath << " "; // debug
-
             if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
                 drivepath = fdpath + "ATMaccount.txt";
-                
-                //cout << "\nFlash drive detected at: " << fdpath << endl;
             }
         }
     }
@@ -332,25 +324,10 @@ void transaction::updatePinInFile(wxString newPin) {
     ofstream changefile(drivepath);
 
     if (!changefile) {
-        //cout << "Error opening file!" << endl;
         return;
     }
     wxString encrypted = encrypt(newPin);
     
     changefile << login->cardNum << " " << encrypted;
-
-    ////cout << temp << endl;
-
-    //cout << "Account PIN in USB changed!" << endl;
     changefile.close();
-}
-
-bool transaction::idleUSB(transaction transac) {
-    if (detectFlashDrive() == false) {
-        wxLogMessage("Please insert card.");
-        idleUSB(transac);
-    }
-    else {
-        return true;
-    }
 }

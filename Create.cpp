@@ -43,7 +43,7 @@ bool create::isEmpty() {
 }
 
 
-bool create::detectFlashDrive() {
+int create::detectFlashDrive() {
     DWORD fd = GetLogicalDrives();
 
     for (char drive = 'D'; drive <= 'Z'; drive++) {
@@ -55,17 +55,16 @@ bool create::detectFlashDrive() {
                 drivepath = fdpath + "ATMaccount.txt"; // directory of ATMAccount.txt in the drive
                 ifstream file(drivepath);
                 if (file.good()) { // exits program as file exists
-                    wxLogMessage("CARD is registered.");
-                    return false;
+    
+                    return 0;
                 }
                 else { // file does not exist 
-                    return true;
+                    return 1;
                 }
             }
         }
     } // no flash drive found
-    wxLogMessage("Please insert card.");
-    return false;
+    return -1;
 }
 
 void create::saveAccounts(wxString tCardNum, wxString tPin) {
@@ -156,7 +155,8 @@ void create::createAccount(wxString tName, wxString tPin, int tBalance, wxString
         search = search->next;
     } while (search != NULL); 
 
-    wxMessageBox("CARD NUMBER: " + tCardNum);
+    wxMessageBox("ACCOUNT REGISTERED!!!");
+    wxMessageBox("CARD NUMBER: " + tCardNum + "\nName: " + tName + "\nBirthday: " + tBirthday + "\nContact Number: " + tContact);
     
     LinktoDatabase(tName, tPin, tCardNum, tBalance, tBirthday, tContact); 
     
@@ -182,12 +182,3 @@ void create::LinktoDatabase(wxString fileName, wxString filePin, wxString fileCa
         file.close();  
     } // in append mode to put the new account to bottom of the txt file
 }
-/*bool create::idleUSB(create c) {
-    if (detectFlashDrive() == false) {      
-
-        idleUSB(c);
-    }
-    else {
-        return true;
-    }
-}*/
