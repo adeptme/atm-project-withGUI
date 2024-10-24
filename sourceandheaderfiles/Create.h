@@ -22,7 +22,6 @@ private:
     Account* first; // points to first account
     Account* last; // points to last account
 
-    //map<string, Account> accounts;
     string drivepath;
 
 public:
@@ -33,7 +32,7 @@ public:
     wxString decrypt(wxString pin);
 
     bool isEmpty();
-    bool detectFlashDrive();
+    int detectFlashDrive();
     
     void retrieveFromDatabase();
     
@@ -43,5 +42,4 @@ public:
     void saveAccounts(wxString tCardNum, wxString tPin);
     void LinktoDatabase(wxString fileName, wxString filePin, wxString fileCardNum, int fileBalance, wxString fileBirthday, wxString fileContact);
     
-    void idleUSB(create C);
 };

@@ -10,8 +10,6 @@
 #include <windows.h>
 #include <conio.h>
 
-
-
 wxString create::decrypt(wxString pin) {   // decryption
     string temp = string(pin.mb_str()); // Convert wxString to std::wxString
 
@@ -45,7 +43,7 @@ bool create::isEmpty() {
 }
 
 
-bool create::detectFlashDrive() {
+int create::detectFlashDrive() {
     DWORD fd = GetLogicalDrives();
 
     for (char drive = 'D'; drive <= 'Z'; drive++) {
@@ -57,33 +55,49 @@ bool create::detectFlashDrive() {
                 drivepath = fdpath + "ATMaccount.txt"; // directory of ATMAccount.txt in the drive
                 ifstream file(drivepath);
                 if (file.good()) { // exits program as file exists
-                    
-                    exit(0);
+    
+                    return 0;
                 }
                 else { // file does not exist 
-                    return true;
+                    return 1;
                 }
             }
         }
-    } // no flash drive found
-
-    return false;
+    } // card is not detected
+    return -1;
 }
 
 void create::saveAccounts(wxString tCardNum, wxString tPin) {
+
+    string drivepath, fdpath;
+    DWORD fd = GetLogicalDrives();
+    //cout << "Flash drive detected: ";
+    for (char drive = 'D'; drive <= 'Z'; drive++) {
+        if (fd & (1 << (drive - 'A'))) {
+            fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
+
+            //cout << fdpath << " "; // debug
+
+            if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
+                drivepath = fdpath + "ATMaccount.txt";
+                //cout << "\nFlash drive detected at: " << fdpath << endl;
+            }
+        }
+    }
+
     if (drivepath.empty()) {
-        system("pause");
+        wxLogMessage("Insert USB.");
         return;
     }
 
     ofstream createFile(drivepath);
     if (!createFile) { // Error in opening the file
-        system("pause");
+        wxLogMessage("USB file cannot be opened.");
         return;
     }
 
     if (isEmpty()) { // No accounts to save. The accounts map is empty.
-        system("pause");
+        wxLogMessage("No accounts in linked list.");
         return;
     }
     createFile << tCardNum << " " << encrypt(tPin);
@@ -123,7 +137,6 @@ void create::datatoLink(wxString fileName, wxString filePin, wxString fileCardNu
     newAccount->birthday = fileBirthday;      
     newAccount->contact = fileContact;  
     newAccount->next = NULL;
-
     if (isEmpty()) {
         first = last = newAccount;
     }
@@ -140,10 +153,13 @@ void create::createAccount(wxString tName, wxString tPin, int tBalance, wxString
     do {
         tCardNum = generateRandAccNum();
         search = search->next;
-    } while (search != NULL);  
+    } while (search != NULL); 
+
+    wxMessageBox("ACCOUNT REGISTERED!!!");
+    wxMessageBox("CARD NUMBER: " + tCardNum + "\nName: " + tName + "\nBirthday: " + tBirthday + "\nContact Number: " + tContact);
     
     LinktoDatabase(tName, tPin, tCardNum, tBalance, tBirthday, tContact); 
-
+    
     saveAccounts(tCardNum, tPin); 
     }
 
@@ -165,15 +181,4 @@ void create::LinktoDatabase(wxString fileName, wxString filePin, wxString fileCa
         saveAccounts(fileCardNum, filePin);
         file.close();  
     } // in append mode to put the new account to bottom of the txt file
-}
-
-void create::idleUSB(create C) {
-    if (detectFlashDrive() == false) {
-        system("cls");      
-        Sleep(1);
-        idleUSB(C);
-    }
-    else {
-        return;
-    }
 }
