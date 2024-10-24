@@ -42,8 +42,6 @@ int transaction::detectFlashDrive() {
         if (fd & (1 << (drive - 'A'))) {
             string fdpath = string(1, drive) + ":/"; // makes a wxString storing the path to drive
 
-            //cout << fdpath << " "; // debug
-
             if (GetDriveTypeA(fdpath.c_str()) == DRIVE_REMOVABLE) {
 
                 string drivepath = fdpath + "ATMaccount.txt"; // directory of ATMAccount.txt in the drive
@@ -98,13 +96,10 @@ bool transaction::searchInUSB(wxString acc_num, wxString pin) {
 
     string fileCardNumber, encryptedPin;
     while (file >> fileCardNumber >> encryptedPin) {
-        
-        wxMessageBox(acc_num);
         if (fileCardNumber == acc_num) {
             // Decrypt the PIN
             wxString decryptedPin = decrypt(encryptedPin);
-           
-            wxMessageBox(decryptedPin);
+
             // Compare decrypted PIN with the user's input PIN
             if (decryptedPin == pin) {
                 file.close();
@@ -237,32 +232,26 @@ bool transaction::search(wxString acc_num, wxString pin) {
     return false;
 }
 
-int transaction::deposit(int Damount) {
-
-    if (login->balance >= Damount) {
-        
+bool transaction::deposit(int Damount) {
         login->balance += Damount;
         saveToFile();
-        return login->balance;
-    }
+        return true;
 }
 
-int transaction::withdraw(int inputbalance) {
+bool transaction::withdraw(int inputbalance) {
     if (login->balance >= inputbalance) {
         login->balance -= inputbalance;
         saveToFile();
-        return login->balance;
+        return true;
     }
-    return -1;
+    return false;
 }
 
 int transaction::checkBal() {
-    int temp = login->balance;
-
-    return temp;
+    return login->balance;
 }
 
-int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
+bool transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
 
     while (1) {
 
@@ -277,14 +266,15 @@ int transaction::bankTrans(int amounttransfer, wxString targetcardnum) {
                         login->balance -= amounttransfer;
 
                         targetAccount->balance += amounttransfer;
-
+                        wxMessageBox("AMOUNT TRANSFER SUCCESSFUL\nRecipient Name: " + targetAccount->name);
                         saveToFile();
-                        return login->balance;
+                        return true;
                     }
                     targetAccount = targetAccount->next;
                 }
             }
             else {
+                return false;
             }
         }
     }

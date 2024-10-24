@@ -222,14 +222,30 @@ void ATMFrame::Register() {
 
     regnametxt = new wxStaticText(regpanel, wxID_ANY, "NAME :", wxPoint(150, 140));
     regnametxt->SetFont(brandFont);
-    regnameField = new wxTextCtrl(regpanel, wxID_ANY, "", wxPoint(500, 140), wxSize(400, 25));
-    regnameField->SetFont(fieldFont);
 
-    regpintxt = new wxStaticText(regpanel, wxID_ANY, "PIN :", wxPoint(150, 190));
+    regnameField = new wxTextCtrl(regpanel, wxID_ANY, "ex. Juan C. Dela Cruz", wxPoint(500, 140), wxSize(400, 25));
+    regnameField->SetFont(fieldFont);
+    regnameField->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
+        if (regnameField->GetValue() == "ex. Juan C. Dela Cruz") {
+            regnameField->SetFont(brandFont);
+            regnameField->Clear();
+        }
+        event.Skip();
+    });
+
+    regpintxt = new wxStaticText(regpanel, wxID_ANY, "PIN (4 or 6 digits):", wxPoint(150, 190));
     regpintxt->SetFont(brandFont);
-    regpinField = new wxTextCtrl(regpanel, wxID_ANY, "", wxPoint(500, 190), wxSize(400, 25), wxTE_PASSWORD);
+
+    regpinField = new wxTextCtrl(regpanel, wxID_ANY, "****", wxPoint(500, 190), wxSize(400, 25), wxTE_PASSWORD);
     regpinField->SetFont(fieldFont);
     regpinField->SetValidator(wxTextValidator(wxFILTER_DIGITS));
+    regpinField->Bind(wxEVT_SET_FOCUS, [=](wxFocusEvent& event) {
+        if (regpinField->GetValue() == "****") {
+            regpinField->SetFont(brandFont);
+            regpinField->Clear();
+        }
+        event.Skip();
+        });
  
     regbalancetxt = new wxStaticText(regpanel, wxID_ANY, "INITIAL DEPOSIT :", wxPoint(150, 240));
     regbalancetxt->SetFont(brandFont);
@@ -576,7 +592,7 @@ void ATMFrame::RegSubmitButton(wxCommandEvent& evt) {
             }
         }
         else {
-            wxMessageBox("Please 4 or 6 digit PIN.");
+            wxMessageBox("PIN should only be 4 or 6 digits.");
         } 
     }
     else {
@@ -597,7 +613,7 @@ void ATMFrame::OnButtonClicked(wxCommandEvent& evt) {
         }
     }
     else {
-        wxMessageBox("Please input 4 or 6 digits only.");
+        wxMessageBox("Please input the correct PIN.");
     }
     Layout();
 }
@@ -677,23 +693,23 @@ void ATMFrame::AnotherTransacW(wxCommandEvent& evt) {
     
     int newbalance;
     newbalance = wxAtoi(withdrawamount);
-    if (!withdrawamount.IsEmpty() && newbalance >= 500){
-        int wAmount = Transac.withdraw(newbalance);
-        if (wAmount == -1) {
-            wxLogMessage("Please deposit enough money.");
-            withdraw->Hide();
-            atransaction->Show();
+    if (!withdrawamount.IsEmpty() && newbalance <= 10000){
+        if (newbalance >= 500) {
+            if (Transac.withdraw(newbalance) == true) {
+                withdraw->Hide();
+                atransaction->Show();
+                Layout();
+            }
+            else {
+                wxLogMessage("Please deposit enough money.");
+            }
         }
         else {
-            wxString convertedamount;
-            convertedamount << wAmount;
-            withdraw->Hide();
-            atransaction->Show();
-            Layout();
+            wxLogMessage("Minimum withdraw amount is 500 php.");
         }
     }
     else {
-        wxLogMessage("Minimum withdraw amount is 500 php.");
+        wxLogMessage("Maximum withdraw amount is only 10000 php.");
     }
 }
 
@@ -706,9 +722,13 @@ void ATMFrame::AnotherTransacBT(wxCommandEvent& evt) {
     transferredbalance = wxAtoi(banktransferamount);
     if (!AccNumTrans.IsEmpty() && AccNumTrans.Length() == 5) {
         if (transferredbalance >= 500) {
-            BankTransferPanel->Hide();
-            Transac.bankTrans(transferredbalance, AccNumTrans);
-            atransaction->Show();
+            if (Transac.bankTrans(transferredbalance, AccNumTrans) == true) {
+                BankTransferPanel->Hide();
+                atransaction->Show();
+            }
+            else {
+                wxMessageBox("Insufficient balance.");
+            }
         }
         else {
             wxMessageBox("Minimum bank transfer amount is 500 php.");
@@ -721,20 +741,25 @@ void ATMFrame::AnotherTransacBT(wxCommandEvent& evt) {
 }
 
 void ATMFrame::AnotherTransacD(wxCommandEvent& evt) {
-    depositpanel->Hide();
+    
     wxString depositamount = amountD->GetValue();
     int newbalanceD;
     newbalanceD = wxAtoi(depositamount);
     
-    if (!depositamount.IsEmpty() && newbalanceD >= 500) {
-        int dAmount = Transac.deposit(newbalanceD);
-        wxString Dconvertedamount;
-        Dconvertedamount << dAmount;
-        atransaction->Show();
+    if (!depositamount.IsEmpty() && newbalanceD <= 50000) {
+        if (newbalanceD >= 500) {
+            Transac.deposit(newbalanceD);
+            depositpanel->Hide();
+            atransaction->Show();
+        }
+        else {
+            wxMessageBox("Minimum deposit amount is 500 php.");
+        }
     }
     else {
-        wxMessageBox("Minimum deposit amount is 500 php.");
+        wxMessageBox("Maximum deposit amount is only 50000 php.");
     }
+    
     Layout();
 }
 
@@ -754,22 +779,33 @@ void ATMFrame::SChanged(wxCommandEvent& evt) {
     wxString currentchangedPin = CurrentPin->GetValue();
     wxString verifychangedPin = VerifyNewPin->GetValue();
 
-
-    if (changedPin == verifychangedPin) {
-        if (Transac.changePIN(currentchangedPin, changedPin) == true) {
-            wxMessageBox("SUCCESSFULLY CHANGED PIN");
-            changepinpanel->Hide();
-            transactionpanel->Show();
-            Layout();
-            Close(true);
+    if (!changedPin.IsEmpty() && !currentchangedPin.IsEmpty() && !verifychangedPin.IsEmpty()) {
+        if (changedPin == verifychangedPin) {
+            if ((changedPin.Length() == 4 || changedPin.Length() == 6) && (currentchangedPin.Length() == 4 || currentchangedPin.Length() == 6) && (verifychangedPin.Length() == 4 || verifychangedPin.Length() == 6)) {
+            
+                if (Transac.changePIN(currentchangedPin, changedPin) == true) {
+                    wxMessageBox("SUCCESSFULLY CHANGED PIN");
+                    changepinpanel->Hide();
+                    transactionpanel->Show();
+                    Layout();
+                    Close(true);
+                }
+                else {
+                    wxMessageBox("Current PIN do not match.");
+                }
+            }
+            else {
+                wxMessageBox("PIN should only be 4 or 6 digits.");
+            }
         }
         else {
-            wxMessageBox("Passwords do not match.");
+            wxMessageBox("PINs do not match.");
         }
     }
     else {
-        wxMessageBox("Current Password do not match.");
+        wxMessageBox("Please fill out all the fields.");
     }
+
 }
 
 void ATMFrame::bDayDateChanged(wxCalendarEvent& evt) {

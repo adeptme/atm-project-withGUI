@@ -43,9 +43,9 @@ public:
     void filetoLink(wxString fileName, wxString filePin, wxString fileCardNumber, int fileBalance, wxString fileBirthday, wxString fileContact);
 
     // bank functions
-    int deposit(int Damount);
-    int withdraw(int inputbalance);
+    bool deposit(int Damount);
+    bool withdraw(int inputbalance);
     int checkBal();
-    int bankTrans(int amounttransfer, wxString targetcardnum);
+    bool bankTrans(int amounttransfer, wxString targetcardnum);
     void updatePinInFile(wxString newPin);
 };
